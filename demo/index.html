@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>JS sorting algorithms demo</title>
+<script src="../src/bubble-sort.js"></script>
+<script src="../src/insertion-sort.js"></script>
+<script src="../src/merge-sort.js"></script>
+<script src="../src/quick-sort.js"></script>
+<style>
+body {
+	font-family: monospace, "Open Sans", arial, x-locale-body, sans-serif;
+}
+
+.algorithms {
+	border: 10px solid aquamarine;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	padding: 10px;
+	margin: 10px;
+	margin-left: auto;
+	margin-right: auto;
+	background: #fff;
+}
+
+.algorithms tr:first-child td {
+	padding-bottom: 1em;
+}
+
+a {
+	text-decoration: none;
+	color: brown;
+}
+
+a:hover, a:active {
+	color: salmon !important;
+}
+
+a:visited {
+	color: #7798ED;
+}
+
+.algorithm td {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.algorithm td:nth-child(2) {
+	width: 0;
+}
+
+.algorithm td:first-child {
+	color: #008B8B;
+}
+
+.processing {
+	background-color: #FAFAD2;
+}
+
+.best {
+	background-color: #90EE90;
+}
+
+.worst {
+	background-color: #FF6347;
+}
+
+.best a:hover, .worst a:hover {
+	color: #fff !important;
+}
+
+p {
+	text-align: center;
+}
+</style>
+</head>
+<body>
+	<p>Let's test the sorting algorithms below by using a random generated array of integers.</p>
+	<table class="algorithms">
+		<tr>
+			<td>Number of items</td>
+			<td colspan="2"><input id="itemcount" type="range" min="100" max="100000" value="1000" step="100"><span id="itemcount"></span></td>
+		</tr>
+		<tr class="algorithm insertionsort">
+			<td><a href="https://github.com/eugenmihailescu/sorting-algorithms/blob/master/src/insertion-sort.js" target="_blank">Insertion sort</a></td>
+			<td><input type="checkbox" id="insertionsort" checked="checked"></td>
+			<td></td>
+		</tr>
+		<tr class="algorithm bubblesort">
+			<td><a href="https://github.com/eugenmihailescu/sorting-algorithms/blob/master/src/bubble-sort.js" target="_blank">Bubble sort</a></td>
+			<td><input type="checkbox" id="bubblesort" checked="checked"></td>
+			<td></td>
+		</tr>
+		<tr class="algorithm quicksort">
+			<td><a href="https://github.com/eugenmihailescu/sorting-algorithms/blob/master/src/quick-sort.js" target="_blank">Quick sort</a></td>
+			<td><input type="checkbox" id="quicksort" checked="checked"></td>
+			<td></td>
+		</tr>
+		<tr class="algorithm mergesort">
+			<td><a href="https://github.com/eugenmihailescu/sorting-algorithms/blob/master/src/merge-sort.js" target="_blank">Merge sort</a></td>
+			<td><input type="checkbox" id="mergesort" checked="checked"></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan="3"><input id="btnSort" type="button" value="Sort items"></td>
+		</tr>
+	</table>
+	<p>
+		Source: <a href="https://github.com/eugenmihailescu/sorting-algorithms" target="_blank">https://github.com/eugenmihailescu/sorting-algorithms</a>
+	</p>
+	<script>
+        var input = document.querySelector("input#itemcount");
+
+        function onItemCountChange() {
+            document.querySelector("span#itemcount").innerText = this.value;
+            var color;
+            if (this.value < 2e4) {
+                color = "#1E90FF";
+            } else if (this.value < 4e4) {
+                color = "#FFA500";
+            } else {
+                color = "#DC143C";
+            }
+            document.querySelector("span#itemcount").style.color = color;
+        }
+        function randomArray(count) {
+            var result = [];
+            for (var i = 0; i < count; i += 1) {
+                result.push(Math.round(count * Math.random()));
+            }
+
+            return result;
+        }
+
+        function sort() {
+            var a = randomArray(input.value), algorithms = [ "insertionsort", "bubblesort", "quicksort", "mergesort" ], result = [];
+            var best = [ 9e9, "" ], worst = [ 0, "" ];
+
+            for (var i = 0; i < algorithms.length; i += 1) {
+                var algo = algorithms[i];
+                var el = document.querySelector(".algorithm." + algo + " td:last-child");
+                var row = document.querySelector(".algorithm." + algo);
+                row.setAttribute("class", row.getAttribute("class").replace("worst", "").replace("best", ""));
+
+                if (!document.getElementById(algo).checked) {
+                    el.innerText = "n/a";
+                    continue;
+                }
+
+                var array = a.slice();
+                var start = new Date();
+                array[algo].call(array);
+
+                result[i] = new Date() - start;
+                if (result[i] < best[0]) {
+                    best[0] = result[i];
+                    best[1] = algo;
+                }
+                if (result[i] > worst[0]) {
+                    worst[0] = result[i];
+                    worst[1] = algo;
+                }
+
+                el.innerText = result[i] + " ms";
+
+            }
+
+            for (var i = 0; i < algorithms.length; i += 1) {
+                var algo = algorithms[i];
+                var el = document.querySelector(".algorithm." + algo);
+                if (algo == best[1]) {
+                    el.setAttribute("class", el.getAttribute("class") + " best");
+                }
+                if (algo == worst[1] && algo != best[1]) {
+                    el.setAttribute("class", el.getAttribute("class") + " worst");
+                }
+            }
+        }
+
+        input.addEventListener("change", onItemCountChange);
+        input.addEventListener("input", onItemCountChange);
+        onItemCountChange.call(input);
+        document.getElementById("btnSort").addEventListener("click", sort);
+    </script>
+</body>
+</html>
