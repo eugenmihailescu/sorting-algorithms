@@ -9,4 +9,5 @@ This repository features a lightweight JavaScript implementation of the most com
 - mergesort (bool desc)
 - heapsort (bool desc)
 - countingsort (bool desc)
+
 where the optional paramter `desc` specifies the sorting direction (when true descendent, default ascendent).
