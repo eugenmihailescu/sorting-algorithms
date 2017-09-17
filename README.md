@@ -7,6 +7,7 @@ This repository features a lightweight JavaScript implementation of the most com
 - bubblesort (bool desc)
 - quicksort (bool desc)
 - mergesort (bool desc)
+
 where the optional paramter `desc` specifies the sorting direction (when true descendent, default ascendent).
 
 The algorithms time complexity:
