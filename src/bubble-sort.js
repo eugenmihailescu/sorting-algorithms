@@ -45,7 +45,7 @@ Array.prototype.bubblesort = function(desc) {
         var sorted = false;
 
         for (var i = 1; i <= max; i += 1) {
-            if ((desc && that[i - 1] < that[i]) || (!desc && that[i - 1] > that[i])) {
+            if ((!desc && that[i - 1] > that[i]) || (desc && that[i - 1] < that[i])) {
                 swap(i - 1, i);
                 sorted = true;
             }

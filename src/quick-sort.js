@@ -41,16 +41,15 @@ Array.prototype.quicksort = function(desc) {
      * @returns {int} Returns the pivot position
      */
     function partition(left, right) {
-
-        var pivot = that[Math.floor((right + left) / 2)], i = left, j = right;
+        var pivot = that[right + left >> 1], i = left, j = right;
 
         while (i <= j) {
 
-            while ((desc && that[i] > pivot) || (!desc && that[i] < pivot)) {
+            while ((!desc && that[i] < pivot) || (desc && that[i] > pivot)) {
                 i++;
             }
 
-            while ((desc && that[j] < pivot) || (!desc && that[j] > pivot)) {
+            while ((!desc && that[j] > pivot) || (desc && that[j] < pivot)) {
                 j--;
             }
 

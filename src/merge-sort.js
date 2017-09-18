@@ -31,7 +31,7 @@ Array.prototype.mergesort = function(desc) {
 
         // create a new array by inserting the element of the left/right in a sorted maner
         while (il < llen && ir < rlen) {
-            if ((desc && left[il] > right[ir]) || (!desc && left[il] < right[ir])) {
+            if ((!desc && left[il] < right[ir]) || (desc && left[il] > right[ir])) {
                 result.push(left[il]);
                 il += 1;
             } else {
@@ -66,7 +66,7 @@ Array.prototype.mergesort = function(desc) {
             return array;
         }
 
-        var mid = Math.floor(max / 2);
+        var mid = max >> 1;
 
         // sort the left slice
         var left = sort(array.slice(0, mid));

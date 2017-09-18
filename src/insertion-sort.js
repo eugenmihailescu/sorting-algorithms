@@ -33,7 +33,7 @@ Array.prototype.insertionsort = function(desc) {
     // sort the array
     for (var i = 1; i < this.length; i += 1) {
         var j = i;
-        while (j > 0 && ((desc && this[j - 1] < this[j]) || (!desc && this[j - 1] > this[j]))) {
+        while (j > 0 && ((!desc && this[j - 1] > this[j]) || (desc && this[j - 1] < this[j]))) {
             swap(j - 1, j);
             j -= 1;
         }
