@@ -14,19 +14,41 @@
 
 </head>
 <body>
+	<div class="blockUI unBlockUI">
+		<div class="blockUI-frame"></div>
+		<div class="blockUI-caption">Please wait...</div>
+	</div>
+
 	<div class="wrapper">
-		<p>Let's test the sorting algorithms below by using a random generated array of integers.</p>
+		<div class="header">
+			<p>
+				This program runs various sorting algorithms both in main UI-thread and in parallel threads using <a target="_blank"
+					href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers">Web Workers</a>.
+			</p>
+			<p>By running the sorting in the UI-thread the UI is blocked until the sorting function is terminated.</p>
+			<p>However, running the sorting in a parallel thread (as a background Worker) the sorting and the UI don't block each other.</p>
+		</div>
 		<table class="algorithms">
 			<tr>
 				<td>Number of items</td>
 				<td></td>
-				<td colspan="2"><input id="itemcount" type="range" min="100" max="100000" value="1000" step="100"><span id="itemcount"></span></td>
+				<td colspan="2"><input id="itemcount" type="range" min="100" max="100000" value="10000" step="100"><span id="itemcount"></span></td>
 			</tr>
 			<tr>
 				<td>Item's type</td>
 				<td></td>
 				<td colspan="2"><select id="itemtype"><option value="string">String</option>
 						<option value="numeric">Numeric</option></select></td>
+			</tr>
+			<tr>
+				<td>Run script in</td>
+				<td colspan="3"><table>
+						<tr>
+							<td><input id="runinpage" type="radio" name="runas" checked="checked">UI</td>
+							<td><input id="runinthread" type="radio" name="runas">worker</td>
+							<td><input id="jobs" type="number" min="1" max="5" value="1">jobs</td>
+						</tr>
+					</table></td>
 			</tr>
 			<tr class="algorithm sort">
 				<td><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort" target="_blank">Array built-in sort</a></td>
