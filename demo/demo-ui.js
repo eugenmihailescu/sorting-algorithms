@@ -4,7 +4,7 @@
  * @version 1.0
  * @author Eugen Mihailescu
  */
-(function() {
+(function($) {
     var dec_sep = Number(1.1).toLocaleString().substring(1, 2);
     var precision = 5; // truncate the number of decimals to 5
 
@@ -13,69 +13,12 @@
 
     var supportsWorker = "function" === typeof window.Worker;
 
-    var itemcount = document.getElementById("itemcount");
-    var runinthread = document.getElementById("runinthread");
-    var runinui = document.getElementById("runinpage");
-    var jobs = document.getElementById("jobs");
+    var itemcount = $("#itemcount");
+    var runinthread = $("#runinthread");
+    var runinui = $("#runinpage");
+    var jobs = $("#jobs");
     var jobsmax = algorithms.length;
     var best = new Array(9e9, ""), worst = new Array(0, ""), exectimes = [];
-
-    /**
-     * Polyfill for addEventListener
-     */
-    function addEventListener(element, event, callback) {
-        if (element.addEventListener) {
-            element.addEventListener(event, callback);
-        } else if (element.attachEvent) {
-            element.attachEvent("on" + event, callback);
-        }
-    }
-
-    /**
-     * Polyfill for dispatchEvent
-     */
-    function dispatchEvent(element, event) {
-        if (element.dispatchEvent) {
-            var e = new Event(event);
-            element.dispatchEvent(e);
-        } else if (element.fireEvent) {
-            var e = new Event("on" + event);
-            element.fireEvent(e);
-        }
-    }
-
-    /**
-     * Set the class of a DOM element
-     * 
-     * @param {string|Object}
-     *            selector - The CSS selector or the DOM element
-     * @param {string}
-     *            className - The class name to set
-     */
-    function setClass(selector, className) {
-        var el = "object" == typeof selector ? selector : document.querySelector(selector);
-        el.className += " " + className;
-    }
-
-    /**
-     * Remove the class of a DOM element
-     * 
-     * @param {string|Object}
-     *            selector - The CSS selector or the DOM element
-     * @param {string|array}
-     *            className - The class name or an array of class names to remove
-     */
-    function delClass(selector, classNames) {
-        if ("string" == typeof classNames)
-            classNames = [ classNames ];
-
-        var el = "object" == typeof selector ? selector : document.querySelector(selector), r;
-
-        for (var i = 0; i < classNames.length; i += 1) {
-            r = new RegExp("\s?\\b" + classNames[i] + "\\b", "g");
-            el.className = el.className.replace(r, "");
-        }
-    }
 
     /**
      * Block the UI while on progress
@@ -84,12 +27,11 @@
      *            unblock - When true unblocks the UI, otherwise blocks it
      */
     function blockUI(unblock) {
-        var el = document.querySelector(".blockUI");
-        var uc = "unBlockUI", nc;
+        var el = ".blockUI", uc = "unBlockUI";
         if (unblock) {
-            setClass(el, uc);
+            $(el).addClass(uc);
         } else {
-            delClass(el, uc);
+            $(el).removeClass(uc);
         }
     }
 
@@ -105,8 +47,8 @@
      * Update item# on range input change
      */
     function onItemCountChange() {
-        var el = document.querySelector("span#itemcount"), color;
-        el.innerText = this.value;
+        var el = $("span#itemcount"), color;
+        $(el).text(this.value);
 
         if (this.value < 2e4) {
             color = "#1E90FF";
@@ -116,7 +58,7 @@
             color = "#DC143C";
         }
 
-        el.style.color = color;
+        $(el).css("color", color);
     }
 
     /**
@@ -124,7 +66,7 @@
      * 
      */
     function onRunMethodChange() {
-        jobs.disabled = !supportsWorker || runinui.checked;
+        $(jobs).prop("disabled", !supportsWorker || $(runinui).prop("checked"));
     }
 
     /**
@@ -132,13 +74,13 @@
      */
     function onSortClick() {
         initAlgoUI();
-        setClass("#btnChart", "hidden");
+        $("#btnChart").addClass("hidden");
 
         blockUI();
 
         // setTimeout allows the UI to sync while running on the main UI thread
         setTimeout(function() {
-            sort(runinthread.checked, parseInt(jobs.value), unBlockUI);
+            sort($(runinthread).prop("checked"), parseInt($(jobs).val()), unBlockUI);
         }, 100);
     }
 
@@ -146,17 +88,17 @@
      * Hide the chart, show the algo list
      */
     function onBackClick() {
-        delClass(".algorithms", "hidden");
-        setClass(".chart-wrapper", "hidden");
+        $(".algorithms").removeClass("hidden");
+        $(".chart-wrapper").addClass("hidden");
     }
 
     /**
      * Hide the algo list, show the chart
      */
     function onChartClick() {
-        setClass(".algorithms", "hidden");
-        delClass(".chart-wrapper", "hidden");
-        delClass("#btnChart", "hidden");
+        $(".algorithms").addClass("hidden");
+        $(".chart-wrapper").removeClass("hidden");
+        $("#btnChart").removeClass("hidden");
     }
 
     /**
@@ -182,9 +124,8 @@
      */
     function initAlgoUI() {
         for (var i = 0; i < algorithms.length; i += 1) {
-            var el = document.querySelector(".algorithm." + algorithms[i][0] + " td:last-child");
-            el.innerText = "";
-            delClass(".algorithm." + algorithms[i][0], [ "worst", "best" ]);
+            $(".algorithm." + algorithms[i][0] + " td:last-child").text("");
+            $(".algorithm." + algorithms[i][0]).removeClass("worst best");
         }
     }
 
@@ -286,7 +227,7 @@
 
         var chartClass = google.visualization.BarChart;
         var algo, cix = Math.floor(colors.length * Math.random()), color, annotation;
-        for (i in exectimes) {
+        for (var i in exectimes) {
             if (exectimes.hasOwnProperty(i)) {
                 algo = getAlgorithmByName(i);
                 if (cix >= colors.length) {
@@ -332,23 +273,17 @@
      * @param {bool}
      *            runAsWorker - When true runs the sorting algorithms in a separate Worker thread, otherwise in the UI thread
      * @param {int}
-     *            jobs - When runAsWorker=true limits the number of concurrent Worker threads to use
+     *            count - When runAsWorker=true limits the number of concurrent Worker threads to use
      * @param {callable}
      *            callback - A callback function that is called when all sortings were done
      * @see https://developer.mozilla.org/en-US/docs/Web/API/Worker
      */
-    /**
-     * @param runAsWorker
-     * @param jobs
-     * @param callback
-     * @returns
-     */
-    function sort(runAsWorker, jobs, callback) {
+    function sort(runAsWorker, count, callback) {
 
         runAsWorker = runAsWorker && supportsWorker || false;
-        jobs = jobs || 1;
+        count = count || 1;
 
-        var a = randomArray(itemcount.value, document.getElementById("itemtype").value), elapsed, threads = [];
+        var a = randomArray($(itemcount).val(), $("#itemtype").val()), elapsed, threads = [];
 
         /**
          * Find a thread by the sorting algorithm name
@@ -410,8 +345,8 @@
          *            e - An object that contains info about the job status
          */
         var onDone = function(e) {
-            var el = document.querySelector(".algorithm." + e.data.algo + " td:last-child");
-            var row = document.querySelector(".algorithm." + e.data.algo);
+            var el = $(".algorithm." + e.data.algo + " td:last-child");
+            var row = $(".algorithm." + e.data.algo);
 
             if (e.data.done) {
 
@@ -422,25 +357,25 @@
                 setExecTime(worst, e.data.time, e.data.algo, true);
 
                 // update the result
-                el.innerText = getTimeFormat(e.data.time);
+                $(el).text(getTimeFormat(e.data.time));
 
-                setClass(el, "done");
-                delClass(row, "processing");
+                $(el).addClass("done");
+                $(row).removeClass("processing");
 
                 threadDone(e.data.algo);
             } else {
-                el.innerText = "processing...";
+                $(el).text("processing...");
 
-                setClass(row, "processing");
+                $(row).addClass("processing");
             }
         };
 
         for (var i = 0; i < algorithms.length; i += 1) {
             var algo = algorithms[i][0];
-            var el = document.querySelector(".algorithm." + algo + " td:last-child");
+            var el = $(".algorithm." + algo + " td:last-child");
 
             if (!document.getElementById(algo).checked) {
-                el.innerText = "n/a";
+                $(el).text("n/a");
                 continue;
             }
 
@@ -450,7 +385,7 @@
             var thread = [ algo, false ];
 
             if (runAsWorker) {
-                if (threads.length < jobs) {
+                if (threads.length < count) {
                     thread[2] = new Worker("worker.js");
                     thread[2].onmessage = onDone;
                     thread[2].onerror = function(event) {
@@ -498,12 +433,12 @@
                 // highlight the best|worst algorithm
                 for (var i = 0; i < algorithms.length; i += 1) {
                     var algo = algorithms[i][0];
-                    var el = document.querySelector(".algorithm." + algo);
+                    var el = $(".algorithm." + algo);
                     if (algo == best[1]) {
-                        setClass(el, "best");
+                        $(el).addClass("best");
                     }
                     if (algo == worst[1] && algo != best[1]) {
-                        setClass(el, "worst");
+                        $(el).addClass("worst");
                     }
 
                     if (runAsWorker) {
@@ -531,21 +466,21 @@
     if (navigator.hardwareConcurrency) {
         jobsmax = Math.max(navigator.hardwareConcurrency, algorithms.length);
     }
-    jobs.max = jobsmax;
-    jobs.value = jobsmax;
+    $(jobs).prop("max", jobsmax);
+    $(jobs).val(jobsmax);
 
-    runinthread.disabled = !supportsWorker;
-    runinthread.checked = supportsWorker;
+    $(runinthread).prop("disabled", !supportsWorker);
+    $(runinthread).prop("checked", supportsWorker);
 
     // handle the UI events
-    addEventListener(itemcount, "input", onItemCountChange);
-    addEventListener(runinthread, "input", onRunMethodChange);
-    addEventListener(runinui, "input", onRunMethodChange);
-    addEventListener(document.getElementById("btnSort"), "click", onSortClick);
-    addEventListener(document.getElementById("btnBack"), "click", onBackClick);
-    addEventListener(document.getElementById("btnChart"), "click", onChartClick);
+    $(itemcount).on("input", onItemCountChange);
+    $(runinthread).on("input", onRunMethodChange);
+    $(runinui).on("input", onRunMethodChange);
+    $("#btnSort").on("click", onSortClick);
+    $("#btnBack").on("click", onBackClick);
+    $("#btnChart").on("click", onChartClick);
 
     // init the UI events
-    dispatchEvent(runinui, "input");
-    dispatchEvent(itemcount, "input");
-})();
+    $(runinui).trigger("input");
+    $(itemcount).trigger("input");
+})(jQuery);
