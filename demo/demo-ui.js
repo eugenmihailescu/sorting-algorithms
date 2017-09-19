@@ -1,4 +1,20 @@
-var algorithms = [ "sort", "insertionsort", "bubblesort", "quicksort", "mergesort" ];
+var algorithms = [ {
+    name : "sort",
+    title : "Array.sort"
+}, {
+    name : "insertionsort",
+    title : "Insertion"
+}, {
+    name : "bubblesort",
+    title : "Bubble"
+}, {
+    name : "quicksort",
+    title : "Quick"
+}, {
+    name : "mergesort",
+    title : "Merge"
+} ];
+
 var supportsWorker = "function" === typeof window.Worker;
 
 var itemcount = document.getElementById("itemcount");
@@ -6,6 +22,7 @@ var runinthread = document.getElementById("runinthread");
 var runinui = document.getElementById("runinpage");
 var jobs = document.getElementById("jobs");
 var jobsmax = algorithms.length;
+var best = new Array(9e9, ""), worst = new Array(0, ""), exectimes = [];
 
 /**
  * Polyfill for addEventListener
@@ -31,6 +48,23 @@ function dispatchEvent(element, event) {
     }
 }
 
+function setClass(selector, className) {
+    var el = "object" == typeof selector ? selector : document.querySelector(selector);
+    el.className += " " + className;
+}
+
+function delClass(selector, classNames) {
+    if ("string" == typeof classNames)
+        classNames = [ classNames ];
+
+    var el = "object" == typeof selector ? selector : document.querySelector(selector), r;
+
+    for (var i = 0; i < classNames.length; i += 1) {
+        r = new RegExp("\s?\\b" + classNames[i] + "\\b", "g");
+        el.className = el.className.replace(r, "");
+    }
+}
+
 /**
  * Block the UI while on progress
  * 
@@ -39,13 +73,12 @@ function dispatchEvent(element, event) {
  */
 function blockUI(unblock) {
     var el = document.querySelector(".blockUI");
-    var cl = el.getAttribute("class"), uc = "unBlockUI", nc;
+    var uc = "unBlockUI", nc;
     if (unblock) {
-        nc = cl + " " + uc;
+        setClass(el, uc);
     } else {
-        nc = cl.replace(uc, "");
+        delClass(el, uc);
     }
-    el.setAttribute("class", nc);
 }
 
 /**
@@ -96,15 +129,25 @@ function onSortClick() {
     }, 100);
 }
 
+function getAlgorithmByName(name) {
+    var result = false;
+    for (var i = 0; i < algorithms.length; i += 1) {
+        if (name == algorithms[i].name) {
+            result = algorithms[i];
+            break;
+        }
+    }
+
+    return result;
+}
 /**
  * Initialize the algorithms UI
  */
 function initAlgoUI() {
     for (var i = 0; i < algorithms.length; i += 1) {
-        var el = document.querySelector(".algorithm." + algorithms[i] + " td:last-child");
+        var el = document.querySelector(".algorithm." + algorithms[i].name + " td:last-child");
         el.innerText = "";
-        var row = document.querySelector(".algorithm." + algorithms[i]);
-        row.setAttribute("class", row.getAttribute("class").replace("worst", "").replace("best", ""));
+        delClass(".algorithm." + algorithms[i].name, [ "worst", "best" ]);
     }
 }
 
@@ -172,6 +215,63 @@ function setExecTime(array, value, algorithm, gt) {
 }
 
 /**
+ * Draw the chart
+ */
+function drawChart() {
+    var rows = [ [ 'Algorithm', 'Time', {
+        role : 'style',
+    }, {
+        role : 'annotation'
+    } ] ];
+
+    var wrapper = document.querySelector(".chart-wrapper");
+
+    var colors = [ "#98FB98", "#7FFFD4", "#6495ED", "#1E90FF", "#FFD700", "#FF6347", "#ADFF2F", "#00BFFF", "#FF1493",
+            "#90EE90", "#00FF7F", "#4169E1", "#FF4500", "#48D1CC", "#8A2BE2", "#FF8C00" ];
+
+    var chartClass = google.visualization.BarChart;
+    var algo, cix = Math.floor(colors.length * Math.random()), color, annotation;
+    for (i in exectimes) {
+        if (exectimes.hasOwnProperty(i)) {
+            algo = getAlgorithmByName(i);
+            if (cix >= colors.length) {
+                cix = 0;
+            }
+            color = colors[cix++];
+
+            annotation = best[1] == i ? "fastest" : (worst[1] == i ? "slowest" : "");
+            rows.push([ algo.title, exectimes[i], 'fill-color:' + color, annotation ]);
+        }
+    }
+
+    var data = new google.visualization.arrayToDataTable(rows);
+
+    var options = {
+        legend : "none",
+        title : 'Benchmark results (smaller=best)',
+        hAxis : {
+            title : 'Exec time (ms)'
+        },
+        vAxis : {
+            title : 'Algorithm name'
+        },
+        height : wrapper.clientHeight + "px",
+        width : wrapper.clientWidth + "px"
+    };
+
+    if (window.innerWidth < window.innerHeight) {
+        chartClass = google.visualization.ColumnChart;
+        var tmp = options.hAxis;
+        options.hAxis = options.vAxis;
+        options.vAxis = tmp;
+    }
+
+    var chart = new chartClass(document.getElementById('chart_div'));
+
+    chart.draw(data, options);
+}
+
+/**
  * Sort a random generated array using the selected sorting algorithms
  * 
  * @param {bool}
@@ -194,7 +294,6 @@ function sort(runAsWorker, jobs, callback) {
     jobs = jobs || 1;
 
     var a = randomArray(itemcount.value, document.getElementById("itemtype").value), elapsed, threads = [];
-    var best = new Array(9e9, ""), worst = new Array(0, "");
 
     /**
      * Find a thread by the sorting algorithm name
@@ -261,25 +360,28 @@ function sort(runAsWorker, jobs, callback) {
 
         if (e.data.done) {
 
+            exectimes[e.data.algo] = e.data.time;
+
             // set the best|worst time
             setExecTime(best, e.data.time, e.data.algo, false);
             setExecTime(worst, e.data.time, e.data.algo, true);
 
             // update the result
             el.innerText = String(e.data.time).substr(0, String(e.data.time).indexOf('.') + 5) + " ms";
-            el.setAttribute("class", "done");
-            row.setAttribute("class", row.getAttribute("class").replace("processing", ""));
+
+            setClass(el, "done");
+            delClass(row, "processing");
 
             threadDone(e.data.algo);
         } else {
             el.innerText = "processing...";
 
-            row.setAttribute("class", row.getAttribute("class") + " processing");
+            setClass(row, "processing");
         }
     };
 
     for (var i = 0; i < algorithms.length; i += 1) {
-        var algo = algorithms[i];
+        var algo = algorithms[i].name;
         var el = document.querySelector(".algorithm." + algo + " td:last-child");
 
         if (!document.getElementById(algo).checked) {
@@ -337,13 +439,13 @@ function sort(runAsWorker, jobs, callback) {
         if (allThreadsDone()) {
             // highlight the best|worst algorithm
             for (var i = 0; i < algorithms.length; i += 1) {
-                var algo = algorithms[i];
+                var algo = algorithms[i].name;
                 var el = document.querySelector(".algorithm." + algo);
                 if (algo == best[1]) {
-                    el.setAttribute("class", el.getAttribute("class") + " best");
+                    setClass(el, "best");
                 }
                 if (algo == worst[1] && algo != best[1]) {
-                    el.setAttribute("class", el.getAttribute("class") + " worst");
+                    setClass(el, "worst");
                 }
 
                 if (runAsWorker) {
@@ -355,9 +457,14 @@ function sort(runAsWorker, jobs, callback) {
             }
             clearInterval(loop);
 
+            setClass(".algorithms", "hidden");
+            delClass(".chart-wrapper", "hidden");
+            google.charts.setOnLoadCallback(drawChart());
+
             if (callback) {
                 callback();
             }
+
         }
     }, 100);
 }

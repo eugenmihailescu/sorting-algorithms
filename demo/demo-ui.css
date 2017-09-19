@@ -169,6 +169,10 @@ input#jobs, select, input[type="button"] {
 	left: 0;
 }
 
-.unBlockUI {
+.unBlockUI, .hidden {
 	display: none;
+}
+
+#chart_div {
+	min-height: 400px;
 }

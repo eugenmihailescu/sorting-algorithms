@@ -6,6 +6,8 @@
 <title>JS sorting algorithms demo</title>
 <link rel="stylesheet" href="demo-ui.css">
 
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
 <!-- make sure these points to the scripts URI -->
 <script src="../src/bubble-sort.js"></script>
 <script src="../src/insertion-sort.js"></script>
@@ -80,10 +82,21 @@
 			</tr>
 		</table>
 	</div>
+	<div class="chart-wrapper hidden">
+		<div id="chart_div"></div>
+		<div style="text-align: center; margin-bottom: 1em;">
+			<input type="button" value="Back" onclick="window.location.reload();">
+		</div>
+	</div>
 	<div class="footer">
 		(c) 2017 Eugen Mihailescu, <a href="http://mynixworld.info" target="_blank">mynixworld.info</a><br> Source: <a
 			href="https://github.com/eugenmihailescu/sorting-algorithms" target="_blank">https://github.com/eugenmihailescu/sorting-algorithms</a>
 	</div>
 	<script src="demo-ui.js"></script>
+	<script type="text/javascript">
+        google.charts.load('current', {
+            packages : [ 'corechart' ]
+        });
+    </script>
 </body>
 </html>
