@@ -1,5 +1,42 @@
-var input = document.querySelector("input#itemcount");
+var algorithms = [ "sort", "insertionsort", "bubblesort", "quicksort", "mergesort" ];
+var supportsWorker = "function" === typeof window.Worker;
 
+var itemcount = document.getElementById("itemcount");
+var runinthread = document.getElementById("runinthread");
+var runinui = document.getElementById("runinpage");
+var jobs = document.getElementById("jobs");
+var jobsmax = algorithms.length;
+
+/**
+ * Polyfill for addEventListener
+ */
+function addEventListener(element, event, callback) {
+    if (element.addEventListener) {
+        element.addEventListener(event, callback);
+    } else if (element.attachEvent) {
+        element.attachEvent("on" + event, callback);
+    }
+}
+
+/**
+ * Polyfill for dispatchEvent
+ */
+function dispatchEvent(element, event) {
+    if (element.dispatchEvent) {
+        var e = new Event(event);
+        element.dispatchEvent(e);
+    } else if (element.fireEvent) {
+        var e = new Event("on" + event);
+        element.fireEvent(e);
+    }
+}
+
+/**
+ * Block the UI while on progress
+ * 
+ * @param {bool}
+ *            unblock - When true unblocks the UI, otherwise blocks it
+ */
 function blockUI(unblock) {
     var el = document.querySelector(".blockUI");
     var cl = el.getAttribute("class"), uc = "unBlockUI", nc;
@@ -11,6 +48,10 @@ function blockUI(unblock) {
     el.setAttribute("class", nc);
 }
 
+/**
+ * Removes the BlockUI layer
+ * 
+ */
 function unBlockUI() {
     blockUI(true);
 }
@@ -19,8 +60,9 @@ function unBlockUI() {
  * Update item# on range input change
  */
 function onItemCountChange() {
-    document.querySelector("span#itemcount").innerText = this.value;
-    var color;
+    var el = document.querySelector("span#itemcount"), color;
+    el.innerText = this.value;
+
     if (this.value < 2e4) {
         color = "#1E90FF";
     } else if (this.value < 4e4) {
@@ -28,7 +70,42 @@ function onItemCountChange() {
     } else {
         color = "#DC143C";
     }
-    document.querySelector("span#itemcount").style.color = color;
+
+    el.style.color = color;
+}
+
+/**
+ * Enable/disable UI options on run method change
+ * 
+ */
+function onRunMethodChange() {
+    jobs.disabled = !supportsWorker || runinui.checked;
+};
+
+/**
+ * Launch the sorting process
+ */
+function onSortClick() {
+    initAlgoUI();
+
+    blockUI();
+
+    // setTimeout allows the UI to sync while running on the main UI thread
+    setTimeout(function() {
+        sort(runinthread.checked, parseInt(jobs.value), unBlockUI);
+    }, 100);
+}
+
+/**
+ * Initialize the algorithms UI
+ */
+function initAlgoUI() {
+    for (var i = 0; i < algorithms.length; i += 1) {
+        var el = document.querySelector(".algorithm." + algorithms[i] + " td:last-child");
+        el.innerText = "";
+        var row = document.querySelector(".algorithm." + algorithms[i]);
+        row.setAttribute("class", row.getAttribute("class").replace("worst", "").replace("best", ""));
+    }
 }
 
 /**
@@ -64,6 +141,11 @@ function now() {
 
 /**
  * Comparison function for custom sort
+ * 
+ * @param {Object}
+ *            a - first compare item
+ * @param {Object}
+ *            b - second compare item
  */
 function compare(a, b) {
     return a > b;
@@ -75,11 +157,11 @@ function compare(a, b) {
  * @param {array}
  *            array - The array reference where to store the execution time
  * @param {float}
- *            array - The new time
+ *            value - The new time
  * @param {string}
- *            array - The algorithm name
+ *            algorithm - The algorithm name
  * @param {bool}
- *            array - When false then "<", otherwise ">" operator is assumed
+ *            gt - When false then "<", otherwise ">" operator is assumed
  */
 function setExecTime(array, value, algorithm, gt) {
     gt = gt || false;
@@ -91,16 +173,36 @@ function setExecTime(array, value, algorithm, gt) {
 
 /**
  * Sort a random generated array using the selected sorting algorithms
+ * 
+ * @param {bool}
+ *            runAsWorker - When true runs the sorting algorithms in a separate Worker thread, otherwise in the UI thread
+ * @param {int}
+ *            jobs - When runAsWorker=true limits the number of concurrent Worker threads to use
+ * @param {callable}
+ *            callback - A callback function that is called when all sortings were done
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Worker
+ */
+/**
+ * @param runAsWorker
+ * @param jobs
+ * @param callback
+ * @returns
  */
 function sort(runAsWorker, jobs, callback) {
 
-    runAsWorker = runAsWorker && ("function" === typeof window.Worker) || false;
+    runAsWorker = runAsWorker && supportsWorker || false;
     jobs = jobs || 1;
 
-    var a = randomArray(input.value, document.getElementById("itemtype").value), algorithms = [ "sort", "insertionsort",
-            "bubblesort", "quicksort", "mergesort" ], elapsed, threads = [];
+    var a = randomArray(itemcount.value, document.getElementById("itemtype").value), elapsed, threads = [];
     var best = new Array(9e9, ""), worst = new Array(0, "");
 
+    /**
+     * Find a thread by the sorting algorithm name
+     * 
+     * @param {string}
+     *            algo - The name of the sorting algorithm
+     * @returns {int} - If found returns the index of the thread, otherwise -1
+     */
     var getThread = function(algo) {
         var result = -1;
         for (var i = 0; i < threads.length; i += 1) {
@@ -113,6 +215,12 @@ function sort(runAsWorker, jobs, callback) {
         return result;
     };
 
+    /**
+     * Set a thread as "done" by name
+     * 
+     * @param {string} -
+     *            The name of the sorting algorithm
+     */
     var threadDone = function(algo) {
         var i = getThread(algo);
         if (i > -1) {
@@ -124,6 +232,11 @@ function sort(runAsWorker, jobs, callback) {
         }
     };
 
+    /**
+     * Check if all threads are done
+     * 
+     * @return {bool} - Returns true if all threads were marked as done, false otherwise
+     */
     var allThreadsDone = function() {
         var done = true;
         for (var i = 0; i < threads.length; i += 1) {
@@ -136,6 +249,12 @@ function sort(runAsWorker, jobs, callback) {
         return done;
     };
 
+    /**
+     * Callback when a job is done
+     * 
+     * @param {Object}
+     *            e - An object that contains info about the job status
+     */
     var onDone = function(e) {
         var el = document.querySelector(".algorithm." + e.data.algo + " td:last-child");
         var row = document.querySelector(".algorithm." + e.data.algo);
@@ -158,17 +277,6 @@ function sort(runAsWorker, jobs, callback) {
             row.setAttribute("class", row.getAttribute("class") + " processing");
         }
     };
-
-    var init = function() {
-        for (var i = 0; i < algorithms.length; i += 1) {
-            var el = document.querySelector(".algorithm." + algorithms[i] + " td:last-child");
-            el.innerText = "";
-            var row = document.querySelector(".algorithm." + algorithms[i]);
-            row.setAttribute("class", row.getAttribute("class").replace("worst", "").replace("best", ""));
-        }
-    };
-
-    init();
 
     for (var i = 0; i < algorithms.length; i += 1) {
         var algo = algorithms[i];
@@ -254,26 +362,22 @@ function sort(runAsWorker, jobs, callback) {
     }, 100);
 }
 
-function onRunMethodChange() {
-    document.getElementById("jobs").disabled = !window.Worker || document.getElementById("runinpage").checked;
-};
-
-// init UI events
-input.addEventListener("change", onItemCountChange);
-input.addEventListener("input", onItemCountChange);
-document.getElementById("btnSort").addEventListener("click", function() {
-    blockUI();
-    setTimeout(function() {
-        sort(document.getElementById("runinthread").checked, parseInt(document.getElementById("jobs").value), unBlockUI);
-    }, 100);
-
-});
-document.getElementById("runinthread").disabled = !window.Worker;
-document.getElementById("runinthread").checked = !!window.Worker;
-document.getElementById("runinthread").onchange = onRunMethodChange;
-document.getElementById("runinpage").onchange = onRunMethodChange;
-document.getElementById("runinpage").onchange();
+// if browser provides # of CPU cores
 if (navigator.hardwareConcurrency) {
-    document.getElementById("jobs").value = navigator.hardwareConcurrency;
+    jobsmax = Math.max(navigator.hardwareConcurrency, algorithms.length);
 }
-onItemCountChange.call(input);
+jobs.max = jobsmax;
+jobs.value = jobsmax;
+
+runinthread.disabled = !supportsWorker;
+runinthread.checked = supportsWorker;
+
+// handle the UI events
+addEventListener(itemcount, "input", onItemCountChange);
+addEventListener(runinthread, "input", onRunMethodChange);
+addEventListener(runinui, "input", onRunMethodChange);
+addEventListener(document.getElementById("btnSort"), "click", onSortClick);
+
+// init the UI events
+dispatchEvent(runinui, "input");
+dispatchEvent(itemcount, "input");

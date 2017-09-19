@@ -1,4 +1,8 @@
-importScripts("../src/bubble-sort.js", "../src/insertion-sort.js", "../src/merge-sort.js", "../src/quick-sort.js");
+importScripts("../src/bubble-sort.js");
+importScripts("../src/insertion-sort.js");
+importScripts("../src/merge-sort.js");
+importScripts("../src/quick-sort.js");
+
 /**
  * Returns the number of milliseconds or microseconds of the current date
  */
