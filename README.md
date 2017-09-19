@@ -18,3 +18,5 @@ The algorithms time complexity:
 |BubbleSort |n-1        |n(n-1)/2    |simple    |
 |QuickSort  |n*log(n)   |n^2         |complex   |
 |MergeSort  |n*log(n)   |n*log(n)    |moderate  |
+
+A benchmark demo application is included. 
