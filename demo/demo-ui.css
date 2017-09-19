@@ -44,6 +44,10 @@ body {
 	color: #008B8B;
 }
 
+.algorithms tr:last-child td:last-child {
+	text-align: right;
+}
+
 a {
 	text-decoration: none;
 	color: brown;
