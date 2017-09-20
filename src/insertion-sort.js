@@ -1,13 +1,17 @@
+"use strict";
 /**
  * Sort the array elements by insertion sort method.
  * 
  * Time complexity: between O(n) and O(n^2)
  * 
+ * @author Eugen Mihailescu <eugenmihailescux@gmail.com>
+ * @license {@link https://www.gnu.org/licenses/gpl-3.0.txt|GPLv3}
  * @version 1.0
+ * 
+ * @class
  * @param {bool}
  *            desc - When true then sort the array in descendent order, otherwise in ascendent order
  * 
- * @author Eugen Mihailescu
  * @see https://en.wikipedia.org/wiki/Insertion_sort
  */
 Array.prototype.insertionsort = function(desc) {

@@ -1,8 +1,11 @@
+"use strict";
 /**
  * Script for sorting algorithms demo application
  * 
+ * @author Eugen Mihailescu <eugenmihailescux@gmail.com>
+ * @license {@link https://www.gnu.org/licenses/gpl-3.0.txt|GPLv3}
  * @version 1.0
- * @author Eugen Mihailescu
+ * 
  */
 (function($) {
     var dec_sep = Number(1.1).toLocaleString().substring(1, 2);
@@ -227,7 +230,7 @@
 
         var chartClass = google.visualization.BarChart;
         var algo, cix = Math.floor(colors.length * Math.random()), color, annotation;
-        for (var i in exectimes) {
+        for ( var i in exectimes) {
             if (exectimes.hasOwnProperty(i)) {
                 algo = getAlgorithmByName(i);
                 if (cix >= colors.length) {
