@@ -12,7 +12,7 @@
  * @param {bool}
  *            desc - When true then sort the array in descendent order, otherwise in ascendent order
  * @see https://en.wikipedia.org/wiki/Heapsort
- * @see
+ * @see https://github.com/eugenmihailescu/sorting-algorithms/blob/master/src/binary-heap.js
  */
 Array.prototype.heapsort = function(desc) {
     desc = desc || false;
