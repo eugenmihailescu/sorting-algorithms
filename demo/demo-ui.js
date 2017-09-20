@@ -12,7 +12,7 @@
     var precision = 5; // truncate the number of decimals to 5
 
     var algorithms = [ [ "sort", "Array.sort" ], [ "insertionsort", "Insertion" ], [ "bubblesort", "Bubble" ],
-            [ "quicksort", "Quick" ], [ "mergesort", "Merge" ] ];
+            [ "quicksort", "Quick" ], [ "mergesort", "Merge" ], [ "heapsort", "Heap" ] ];
 
     var supportsWorker = "function" === typeof window.Worker;
 

@@ -2,6 +2,8 @@ importScripts("../src/bubble-sort.js");
 importScripts("../src/insertion-sort.js");
 importScripts("../src/merge-sort.js");
 importScripts("../src/quick-sort.js");
+importScripts("../src/binary-heap.js");
+importScripts("../src/heap-sort.js");
 
 /**
  * Returns the number of milliseconds or microseconds of the current date
