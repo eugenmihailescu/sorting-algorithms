@@ -38,7 +38,7 @@ Array.prototype.selectionsort = function(desc) {
      * Get the position of the minimum|maximum value starting with a given element
      * 
      * @since 1.0
-     * @params {int} start - The start index
+     * @param {int} start - The start index
      * @returns {int}
      */
     function minmax(start) {
