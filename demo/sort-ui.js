@@ -84,7 +84,7 @@ function SortUI($) {
      */
     function minAvg() {
         var v = 9e9, a = false;
-        for (i in sampleAvg) {
+        for ( var i in sampleAvg) {
             if (sampleAvg.hasOwnProperty(i)) {
                 if (sampleAvg[i] < v) {
                     v = sampleAvg[i];
@@ -102,7 +102,7 @@ function SortUI($) {
      */
     function maxAvg() {
         var v = 0, a = false;
-        for (i in sampleAvg) {
+        for ( var i in sampleAvg) {
             if (sampleAvg.hasOwnProperty(i)) {
                 if (sampleAvg[i] > v) {
                     v = sampleAvg[i];
