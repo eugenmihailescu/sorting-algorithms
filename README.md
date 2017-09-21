@@ -14,14 +14,14 @@ where the optional paramter `desc` specifies the sorting direction (when true de
 
 The algorithms time complexity:
 
-| Algorithm | Best case | Worst case |Simplicity|
-|-----------|-----------|------------|----------|
-|Insertion  |n          |n^2         |simple    |
-|BubbleSort |n-1        |n(n-1)/2    |simple    |
-|QuickSort  |n*log(n)   |n^2         |complex   |
-|MergeSort  |n*log(n)   |n*log(n)    |moderate  |
-|HeapSort   |n*log(n)   |n*log(n)    |complx    |
-|Selection  |n^2        |n*^2        |simple    |
+| Algorithm | Best case | Worst case |Simplicity| Speed |
+|-----------|-----------|------------|----------|-------|
+|QuickSort  |n*log(n)   |n^2         |complex   | ***** |
+|MergeSort  |n*log(n)   |n*log(n)    |moderate  | ****  |
+|HeapSort   |n*log(n)   |n*log(n)    |complx    | ****  |
+|Insertion  |n          |n^2         |simple    | ***   |
+|Selection  |n^2        |n*^2        |simple    | **    |
+|BubbleSort |n-1        |n(n-1)/2    |simple    | *     |
 
 A benchmark demo application is included. It allows comparing the performances of the sorting algorithms by displaying the results in a graph ([via Google Chart API](https://developers.google.com/chart/)).
 Features:
