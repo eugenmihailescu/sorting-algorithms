@@ -1,3 +1,5 @@
+"use strict";
+
 importScripts("../src/bubble-sort.js");
 importScripts("../src/insertion-sort.js");
 importScripts("../src/merge-sort.js");

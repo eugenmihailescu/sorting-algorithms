@@ -1,3 +1,15 @@
+"use strict";
+/**
+ * Sorts a randomly generated array by using a list of sorting algorithms
+ * 
+ * @author Eugen Mihailescu <eugenmihailescux@gmail.com>
+ * @license {@link https://www.gnu.org/licenses/gpl-3.0.txt|GPLv3}
+ * @version 1.0
+ * 
+ * @class
+ * @param {object} $ -
+ *            A reference to jQuery
+ */
 function SortUI($) {
     var that = this;
 

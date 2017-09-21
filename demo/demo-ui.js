@@ -6,6 +6,9 @@
  * @license {@link https://www.gnu.org/licenses/gpl-3.0.txt|GPLv3}
  * @version 1.0
  * 
+ * @class
+ * @param {object} $ -
+ *            A reference to jQuery
  */
 function DemoUI($) {
     var that = this;

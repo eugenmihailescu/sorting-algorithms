@@ -1,3 +1,15 @@
+"use strict";
+/**
+ * Generates the benchmark performance chart by Google Chart API
+ * 
+ * @author Eugen Mihailescu <eugenmihailescux@gmail.com>
+ * @license {@link https://www.gnu.org/licenses/gpl-3.0.txt|GPLv3}
+ * @version 1.0
+ * 
+ * @class
+ * @param {object} $ -
+ *            A reference to jQuery
+ */
 function ChartUI($) {
     var that = this;
 
