@@ -5,6 +5,8 @@ importScripts("../src/quick-sort.js");
 importScripts("../src/binary-heap.js");
 importScripts("../src/heap-sort.js");
 
+var that = this;
+
 /**
  * Returns the number of milliseconds or microseconds of the current date
  */
@@ -25,7 +27,8 @@ function compare(a, b) {
 onmessage = function(e) {
     postMessage({
         algo : e.data.algo,
-        done : false
+        done : false,
+        sample : e.data.sample
     });
 
     var start = now();
@@ -35,6 +38,7 @@ onmessage = function(e) {
     postMessage({
         algo : e.data.algo,
         done : true,
-        time : now() - start
+        time : now() - start,
+        sample : e.data.sample
     });
 }
