@@ -4,6 +4,7 @@ importScripts("../src/merge-sort.js");
 importScripts("../src/quick-sort.js");
 importScripts("../src/binary-heap.js");
 importScripts("../src/heap-sort.js");
+importScripts("../src/selection-sort.js");
 
 var that = this;
 

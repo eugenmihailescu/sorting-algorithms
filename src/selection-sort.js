@@ -53,7 +53,7 @@ Array.prototype.selectionsort = function(desc) {
     }
 
     // sort the array
-    for (i = 0; i < that.length; i += 1) {
+    for (var i = 0; i < that.length; i += 1) {
         swap(i, minmax(i));
     }
 

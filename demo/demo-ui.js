@@ -11,7 +11,7 @@ function DemoUI($) {
     var that = this;
 
     this.algorithms = [ [ "sort", "Array.sort" ], [ "insertionsort", "Insertion" ], [ "bubblesort", "Bubble" ],
-            [ "quicksort", "Quick" ], [ "mergesort", "Merge" ], [ "heapsort", "Heap" ] ];
+            [ "quicksort", "Quick" ], [ "mergesort", "Merge" ], [ "heapsort", "Heap" ], [ "selectionsort", "Selection" ] ];
 
     this.supportsWorker = "function" === typeof window.Worker;
 

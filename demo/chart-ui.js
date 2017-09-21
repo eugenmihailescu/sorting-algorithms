@@ -16,7 +16,7 @@ function ChartUI($) {
         var result = false;
         for (var i = 0; i < that.sender.algorithms.length; i += 1) {
             if (name == that.sender.algorithms[i][0]) {
-                result = that.sender.algorithms[i];
+                result = that.sender.algorithms[i][1];
                 break;
             }
         }
@@ -32,13 +32,14 @@ function ChartUI($) {
      * @return {array}
      */
     function getColumns(type) {
-        var result = [];
+        var result = [], algo;
         if ('line' == type) {
             result.push([ 'number', 'time' ]);
             if (that.sender.exectimes.length) {
                 for ( var i in that.sender.exectimes[0]) {
-                    if (that.sender.exectimes[0].hasOwnProperty(i))
-                        result.push([ 'number', i ]);
+                    if (that.sender.exectimes[0].hasOwnProperty(i)) {
+                        result.push([ 'number', getAlgorithmByName(i) ]);
+                    }
                 }
             }
         } else {
@@ -114,12 +115,12 @@ function ChartUI($) {
             }
             data.addRows(series);
         } else {
-            var rows = [], colors = [ "#3366CC", "#DC3912", "#FF9900", "#109618", "#990099", "#0099C6" ], c = 0;
+            var rows = [], colors = [ "#3366CC", "#DC3912", "#FF9900", "#109618", "#990099", "#0099C6", "#DD4477" ], c = 0;
 
             for (var j = 0; j < that.sender.exectimes.length; j += 1) {
                 for ( var i in that.sender.exectimes[j]) {
                     if (that.sender.exectimes[j].hasOwnProperty(i)) {
-                        rows.push([ i, that.sender.exectimes[j][i], colors[c++] ]);
+                        rows.push([ getAlgorithmByName(i), that.sender.exectimes[j][i], colors[c++] ]);
                     }
                 }
             }
