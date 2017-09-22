@@ -51,6 +51,11 @@ function SortUI($) {
      *            progressBar- The progress bar DOM element
      */
     function setProgress(perc, status, progressBar) {
+        var s = perc + "%";
+
+        if ($(status).text() == s) {
+            return;
+        }
         $(status).text(perc + "%");
         $(progressBar).css("background",
                 "linear-gradient(to right, #7FFFD4 " + perc + "%, #fff " + (perc + (perc < 90 ? 10 : (100 - perc))) + "%)");
