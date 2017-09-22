@@ -178,6 +178,12 @@ input#jobs, select, input[type="button"] {
 	display: inline-block;;
 }
 
+@media screen and (max-width: 500px) {
+	#chart_div_algo {
+		display: none !important;
+	}
+}
+
 #chart_div_algo table {
 	margin: 1em;
 }
