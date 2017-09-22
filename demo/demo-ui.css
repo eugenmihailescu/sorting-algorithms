@@ -53,7 +53,7 @@ a {
 	color: brown;
 }
 
-a:hover, a:active {
+a:hover, a:active, label:hover {
 	color: salmon !important;
 }
 
@@ -90,6 +90,145 @@ p {
 	-moz-border-radius: 5px;
 	border-radius: 5px;
 	margin-bottom: 1em;
+}
+
+.close-header {
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: dodgerblue;
+	float: right;
+	color: #FFF;
+	box-shadow: 0 0 5px #000;
+	cursor: pointer;
+	text-align: center;
+	opacity: .5;
+}
+
+.close-header:hover {
+	background: #7FFFD4;
+	color: #666;
+}
+
+.close-header:active {
+	margin-top: 2px;
+}
+
+.header-toggle {
+	position: fixed;
+	top: -8px;
+	right: -8px;
+	width: 40px;
+	height: 40px;
+	background: #F0F8FF;
+	border-radius: 10px;
+	opacity: 0;
+	border: 1px solid dodgerblue;
+}
+
+.header-toggle:after {
+	content: "i";
+	margin-left: .9em;
+	margin-top: .8em;
+	position: fixed;
+	color: dodgerblue;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.footer {
+	text-align: center;
+	left: 0px;
+	right: 0px;
+	background: -webkit-linear-gradient(#fff, #ccc);
+	background: -o-linear-gradient(#fff, #ccc);
+	background: -moz-linear-gradient(#fff, #ccc);
+	background: linear-gradient(#fff, #ccc);
+}
+
+@media screen and (min-height: 500px) {
+	.footer {
+		position: fixed;
+		bottom: 0px;
+		margin: 0px;
+		padding: 10px;
+	}
+}
+
+input, select {
+	width: auto;
+	max-width: 100%;
+	cursor: pointer;
+}
+
+input
+#jobs {
+	width: 3em;
+}
+
+input
+#jobs, select, input
+[type="button"] {
+	height: 2.7em;
+}
+
+.blockUI {
+	display: block;
+}
+
+.blockUI-frame {
+	top: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1000;
+	opacity: .5;
+}
+
+.blockUI-caption {
+	display: inline-block;
+	margin-left: auto;
+	margin-right: auto;
+	top: 50%;
+	bottom: 50%;
+	right: 0;
+	width: 10em;
+	height: 1em;
+	white-space: nowrap;
+	padding: 1em;
+	text-align: center;
+	z-index: 1001;
+	border: 5px solid dodgerblue;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	box-shadow: 0 0 10px #333;
+}
+
+.blockUI-frame, .blockUI-caption {
+	cursor: wait;
+	position: fixed;
+	background-color: #fff;
+	left: 0;
+}
+
+.unBlockUI, .hidden {
+	display: none;
+}
+
+#chart_div {
+	display: inline-block;;
+	min-height: 400px;
+	float: left;
+}
+
+#chart_div_algo {
+	display: inline-block;;
+}
+
+@media screen and (max-width: 500px) {
+	#chart_div_algo {
+		display: none !important;
+	}
 }
 
 .footer {

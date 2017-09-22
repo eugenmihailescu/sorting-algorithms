@@ -51,15 +51,17 @@ function ChartUI($) {
             var div = $("#chart_div_algo");
             var table = div.find("table");
             var chk_sel = 'input[type=checkbox]';
-            
+
             for ( var i in that.sender.exectimes[0]) {
                 if (that.sender.exectimes[0].hasOwnProperty(i)) {
                     if (!table.find(chk_sel + '[data-algo=' + i + ']').length) {
+                        var id = "show_" + i;
                         var tr = $("<tr></tr>").appendTo(table);
                         var td = $("<td></td>").appendTo(tr);
-                        $('<input type="checkbox" checked="checked" data-algo="' + i + '">').appendTo(td).off("change").on(
-                                "change", onChecked);
-                        $("<td></td>").appendTo(tr).text(getAlgorithmByName(i));
+                        $('<input id="' + id + '" type="checkbox" checked="checked" data-algo="' + i + '">').appendTo(td)
+                                .off("change").on("change", onChecked);
+                        td = $("<td></td>").appendTo(tr);
+                        $('<label for="' + id + '"></label>').appendTo(td).text(getAlgorithmByName(i));
                     }
                 }
             }
