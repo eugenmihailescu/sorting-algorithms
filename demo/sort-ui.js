@@ -56,7 +56,8 @@ function SortUI($) {
         if ($(status).text() == s) {
             return;
         }
-        $(status).text(perc + "%");
+
+        $(status).text(s);
         $(progressBar).css("background",
                 "linear-gradient(to right, #7FFFD4 " + perc + "%, #fff " + (perc + (perc < 90 ? 10 : (100 - perc))) + "%)");
     }
