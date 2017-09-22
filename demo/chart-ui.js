@@ -204,7 +204,7 @@ function ChartUI($) {
             if (1 == that.sender.exectimes.length) {
                 options.legend = 'none';
             } else {
-                options.hAxis.title = "Series";
+                options.hAxis.title = "Samples";
             }
         }
 
