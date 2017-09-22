@@ -15,8 +15,9 @@ function DemoUI($) {
     var dec_sep = Number(1.1).toLocaleString().substring(1, 2);
     var precision = 5; // truncate the number of decimals to 5
 
-    this.algorithms = [ [ "sort", "Array.sort" ], [ "insertionsort", "Insertion" ], [ "bubblesort", "Bubble" ],
-            [ "quicksort", "Quick" ], [ "mergesort", "Merge" ], [ "heapsort", "Heap" ], [ "selectionsort", "Selection" ] ];
+    this.algorithms = [ [ "sort", "Array.sort", "#3366CC" ], [ "insertionsort", "Insertion", "#DC3912" ],
+            [ "bubblesort", "Bubble", "#FF9900" ], [ "quicksort", "Quick", "#109618" ], [ "mergesort", "Merge", "#990099" ],
+            [ "heapsort", "Heap", "#0099C6" ], [ "selectionsort", "Selection", "#DD4477" ] ];
 
     this.supportsWorker = "function" === typeof window.Worker;
 
@@ -79,6 +80,9 @@ function DemoUI($) {
         jobs.prop("disabled", !that.supportsWorker || runinui.prop("checked"));
     }
 
+    /**
+     * Draw a graph based on the results of the tested algorithms.
+     */
     function drawChart() {
 
         if (!that.exectimes || !canChart) {

@@ -169,7 +169,31 @@ input#jobs, select, input[type="button"] {
 }
 
 #chart_div {
+	display: inline-block;;
 	min-height: 400px;
+	float: left;
+}
+
+#chart_div_algo {
+	display: inline-block;;
+}
+
+#chart_div_algo table {
+	margin: 1em;
+}
+
+#chart_div_algo table tr:first-child td {
+	border-bottom: 1px solid #EEE;
+	font-weight: bold;
+}
+
+#chart_div_algo table tr:nth-child(2) td {
+	padding-top: 1em;
+}
+
+#chart_div_algo table tr:nth-child(n+2) td:first-child {
+	padding-left: 1em;
+	width: 0;
 }
 
 .range-sample table {

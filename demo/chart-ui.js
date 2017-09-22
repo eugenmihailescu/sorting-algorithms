@@ -16,8 +16,71 @@ function ChartUI($) {
     var maxBarSeries = 5;
 
     this.sender = null;
-    this.minSample = 0;
-    this.maxSample = 9e9;
+    this.minSample = $("input#minsample").val();
+    this.maxSample = $("input#maxsample").val();
+    this.exclude = [];
+
+    /**
+     * Create the option box on the right of the graph
+     * 
+     * @returns {object} Returns the DOM element, false on error
+     */
+    function createOptionBox() {
+        var updateExclude = function() {
+            var algo = $(this).data("algo");
+            var index = that.exclude.indexOf(algo);
+
+            if ($(this).is(':checked')) {
+                if (index > -1) {
+                    that.exclude.splice(index, 1);
+                }
+            } else if (index < 0) {
+                that.exclude.push(algo);
+            }
+        };
+        var onChecked = function() {
+            updateExclude.call(this);
+
+            that.minSample = $("input#minsample").val();
+            that.maxSample = $("input#maxsample").val();
+
+            that.drawChart();
+        };
+
+        if (that.sender.exectimes.length) {
+            var table = $("#chart_div_algo table");
+            if ($("#chart_div_algo table tr").length < 2) {
+                for ( var i in that.sender.exectimes[0]) {
+                    if (that.sender.exectimes[0].hasOwnProperty(i)) {
+                        var tr = $("<tr></tr>").appendTo(table);
+                        var td = $("<td></td>").appendTo(tr);
+                        $('<input type="checkbox" checked="checked" data-algo="' + i + '">').appendTo(td).off("change").on(
+                                "change", onChecked);
+                        $("<td></td>").appendTo(tr).text(getAlgorithmByName(i));
+                    }
+                }
+            } else {
+                $.each($('#chart_div_algo table input[type="checkbox"'), function(key, el) {
+                    updateExclude.call(el);
+                });
+            }
+
+            return $("#chart_div_algo");
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if a specific algoritm should be excluded
+     * 
+     * @param {string}
+     *            algo - The algorithm name
+     * @returns {bool} - Returns true is excluded, false otherwise
+     */
+    function algoExcluded(algo) {
+        return that.exclude.indexOf(algo) > -1;
+    }
 
     /**
      * Returns the algorithm element by its name
@@ -39,6 +102,40 @@ function ChartUI($) {
     }
 
     /**
+     * Get the algorithm's colors
+     * 
+     * @param {string}
+     *            name - A specific algoritm name. When specified returns only its color.
+     * @returns {string|array} - When name is specified then return the algorithm's color. When not specified or false then
+     *          returns the colors of all algorithms.
+     */
+    function getAlgoritmColor(name) {
+        name = name || false;
+        var result = [];
+
+        if (that.sender.exectimes.length) {
+            for ( var i in that.sender.exectimes[0])
+                if (that.sender.exectimes[0].hasOwnProperty(i)) {
+                    if (!name) {
+                        if (!algoExcluded(i)) {
+                            result.push(getAlgoritmColor(i));
+                        }
+                    } else if (name == i) {
+                        for (var j = 0; j < that.sender.algorithms.length; j += 1) {
+                            if (i == that.sender.algorithms[j][0]) {
+                                return that.sender.algorithms[j][2];
+                            }
+                        }
+
+                        return false;
+                    }
+                }
+        }
+
+        return result;
+    }
+
+    /**
      * Check if value is within the sample range
      * 
      * @param {int}
@@ -50,10 +147,30 @@ function ChartUI($) {
     }
 
     /**
+     * Get the column names in the same order as given by the first data sample series.
+     * 
+     * @return {object} - Returns an object with the key=column name and value=the column order
+     */
+    function getColumnsOrder() {
+        var result = {}, c = 0;
+        if (that.sender.exectimes.length) {
+            // the exectimes samples are not in a specific order since the key is the algo name and not an numerical index
+            // so we are going to use a fixed columns order given by the first sample, ie. exectimes[0]
+            for ( var i in that.sender.exectimes[0]) {
+                if (that.sender.exectimes[0].hasOwnProperty(i) && !algoExcluded(i)) {
+                    result[i] = c++;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Get the columns for the chart type
      * 
-     * @param {string}type -
-     *            The chart's type
+     * @param {string}
+     *            type - The chart's type
      * @return {array}
      */
     function getColumns(type) {
@@ -62,7 +179,7 @@ function ChartUI($) {
             result.push([ 'number', 'time' ]);
             if (that.sender.exectimes.length) {
                 for ( var i in that.sender.exectimes[0]) {
-                    if (that.sender.exectimes[0].hasOwnProperty(i)) {
+                    if (that.sender.exectimes[0].hasOwnProperty(i) && !algoExcluded(i)) {
                         result.push([ 'number', getAlgorithmByName(i) ]);
                     }
                 }
@@ -122,6 +239,12 @@ function ChartUI($) {
 
         var columns = getColumns(type);
 
+        var colOrder = getColumnsOrder();
+
+        for (var j = 0; j < that.sender.exectimes.length; j += 1) {
+
+        }
+
         if ('line' == type) {
             data = new google.visualization.DataTable();
 
@@ -135,18 +258,21 @@ function ChartUI($) {
                     continue;
                 }
 
-                var sample = [ j ];
+                var sample = [];
 
                 for ( var i in that.sender.exectimes[j]) {
-                    if (that.sender.exectimes[j].hasOwnProperty(i)) {
-                        sample.push(that.sender.exectimes[j][i]);
+                    if (that.sender.exectimes[j].hasOwnProperty(i) && !algoExcluded(i)) {
+                        sample[colOrder[i]] = that.sender.exectimes[j][i];
                     }
                 }
-                series.push(sample);
+                if (sample.length) {
+                    sample.unshift(j);
+                    series.push(sample);
+                }
             }
             data.addRows(series);
         } else {
-            var rows = [], colors = [ "#3366CC", "#DC3912", "#FF9900", "#109618", "#990099", "#0099C6", "#DD4477" ], c = 0;
+            var rows = [];
 
             for (var j = 0; j < that.sender.exectimes.length; j += 1) {
                 if (!inRange(j)) {
@@ -154,8 +280,8 @@ function ChartUI($) {
                 }
 
                 for ( var i in that.sender.exectimes[j]) {
-                    if (that.sender.exectimes[j].hasOwnProperty(i)) {
-                        rows.push([ getAlgorithmByName(i), that.sender.exectimes[j][i], colors[c++] ]);
+                    if (that.sender.exectimes[j].hasOwnProperty(i) && !algoExcluded(i)) {
+                        rows.push([ getAlgorithmByName(i), that.sender.exectimes[j][i], getAlgoritmColor(i) ]);
                     }
                 }
             }
@@ -194,7 +320,8 @@ function ChartUI($) {
             explorer : {
                 actions : [ 'dragToZoom', 'rightClickToReset' ]
             },
-            isStacked : true
+            isStacked : true,
+            colors : getAlgoritmColor()
         };
 
         if (1 == that.sender.exectimes.length || that.sender.exectimes.length > maxBarSeries) {
@@ -231,15 +358,30 @@ function ChartUI($) {
     }
 
     /**
-     * Draw the chart
+     * Draw the graph
      */
     this.drawChart = function() {
         var chartClass = getChartClass();
 
-        var chart = new chartClass(document.getElementById('chart_div'));
+        var optionBox = createOptionBox();
+
+        optionBox.css("display", "inline-block");
+
+        var chart_div = $('#chart_div');
+
+        var width = window.innerWidth - optionBox.get(0).clientWidth - 20;
+
+        chart_div.css("width", width);
+
+        var chart = new chartClass(chart_div.get(0));
 
         var data = getData(that.sender.exectimes.length > maxBarSeries ? 'line' : 'bar');
 
         chart.draw(data, getOptions());
+
+        $(".range-sample").css("width", $("#chart_div").css("width"));
+
+        optionBox.css("left", width).css("display", "inline");
     };
+
 }
