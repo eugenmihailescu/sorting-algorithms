@@ -48,10 +48,13 @@ function ChartUI($) {
         };
 
         if (that.sender.exectimes.length) {
-            var table = $("#chart_div_algo table");
-            if ($("#chart_div_algo table tr").length < 2) {
-                for ( var i in that.sender.exectimes[0]) {
-                    if (that.sender.exectimes[0].hasOwnProperty(i)) {
+            var div = $("#chart_div_algo");
+            var table = div.find("table");
+            var chk_sel = 'input[type=checkbox]';
+            
+            for ( var i in that.sender.exectimes[0]) {
+                if (that.sender.exectimes[0].hasOwnProperty(i)) {
+                    if (!table.find(chk_sel + '[data-algo=' + i + ']').length) {
                         var tr = $("<tr></tr>").appendTo(table);
                         var td = $("<td></td>").appendTo(tr);
                         $('<input type="checkbox" checked="checked" data-algo="' + i + '">').appendTo(td).off("change").on(
@@ -59,13 +62,13 @@ function ChartUI($) {
                         $("<td></td>").appendTo(tr).text(getAlgorithmByName(i));
                     }
                 }
-            } else {
-                $.each($('#chart_div_algo table input[type="checkbox"'), function(key, el) {
-                    updateExclude.call(el);
-                });
             }
 
-            return $("#chart_div_algo");
+            $.each(table.find(chk_sel), function(key, el) {
+                updateExclude.call(el);
+            });
+
+            return div;
         }
 
         return false;
@@ -306,8 +309,16 @@ function ChartUI($) {
     function getOptions() {
         var wrapper = document.querySelector(".chart-wrapper");
 
+        var swapAxis = function(options) {
+            var tmp = options.hAxis;
+            options.hAxis = options.vAxis;
+            options.vAxis = tmp;
+
+            return options;
+        };
+
         var options = {
-            title : 'Benchmark results (smaller=best)',
+            title : 'Benchmark results (smaller = better)',
             hAxis : {
                 title : 'Execution time (ms)'
             },
@@ -325,14 +336,18 @@ function ChartUI($) {
         };
 
         if (1 == that.sender.exectimes.length || that.sender.exectimes.length > maxBarSeries) {
-            var tmp = options.hAxis;
-            options.hAxis = options.vAxis;
-            options.vAxis = tmp;
+            options = swapAxis(options);
+
             if (1 == that.sender.exectimes.length) {
                 options.legend = 'none';
             } else {
                 options.hAxis.title = "Samples";
             }
+        }
+
+        if (that.sender.exectimes.length > 1 && that.sender.exectimes.length <= maxBarSeries
+                && window.innerWidth > window.innerHeight) {
+            options = swapAxis(options);
         }
 
         return options;
