@@ -9,13 +9,19 @@
  * @version 1.0
  * 
  * @class
- * @param {bool}
- *            desc - When true then sort the array in descendent order, otherwise in ascendent order
+ * @param {function|boolean=}
+ *            compare - When a function is provided then it is used for comparing the items. When a boolean `true` is provided
+ *            the array is sorted descendently. Otherwise (default) ascedent order is assumed.
  * 
  * @see https://en.wikipedia.org/wiki/Bubble_sort
  */
-Array.prototype.bubblesort = function(desc) {
-    desc = desc || false;
+Array.prototype.bubblesort = function(compare) {
+    if ("function" != typeof compare) {
+        var desc = compare || false;
+        compare = function(a, b) {
+            return desc ? a < b : a > b;
+        }
+    }
 
     var that = this;
     var max = that.length;
@@ -49,7 +55,7 @@ Array.prototype.bubblesort = function(desc) {
         var sorted = false;
 
         for (var i = 1; i <= max; i += 1) {
-            if ((!desc && that[i - 1] > that[i]) || (desc && that[i - 1] < that[i])) {
+            if (compare(that[i - 1], that[i])) {
                 swap(i - 1, i);
                 sorted = true;
             }

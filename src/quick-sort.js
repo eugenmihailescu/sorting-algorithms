@@ -9,13 +9,20 @@
  * @version 1.0
  * 
  * @class
- * @param {bool}
- *            desc - When true then sort the array in descendent order, otherwise in ascendent order
+ * @param {function|boolean=}
+ *            compare - When a function is provided then it is used for comparing the items. When a boolean `true` is provided
+ *            the array is sorted descendently. Otherwise (default) ascedent order is assumed.
  * 
  * @see https://en.wikipedia.org/wiki/Quicksort
  */
-Array.prototype.quicksort = function(desc) {
-    desc = desc || false;
+Array.prototype.quicksort = function(compare) {
+    if ("function" != typeof compare) {
+        var desc = compare || false;
+        compare = function(a, b) {
+            return desc ? a < b : a > b;
+        }
+    }
+
     var that = this;
 
     /**
@@ -49,11 +56,11 @@ Array.prototype.quicksort = function(desc) {
 
         while (i <= j) {
 
-            while ((!desc && that[i] < pivot) || (desc && that[i] > pivot)) {
+            while (compare(pivot, that[i])) {
                 i++;
             }
 
-            while ((!desc && that[j] > pivot) || (desc && that[j] < pivot)) {
+            while (compare(that[j], pivot)) {
                 j--;
             }
 

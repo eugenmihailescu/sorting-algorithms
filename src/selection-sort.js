@@ -9,13 +9,19 @@
  * @version 1.0
  * 
  * @class
- * @param {bool}
- *            desc - When true then sort the array in descendent order, otherwise in ascendent order
+ * @param {function|boolean=}
+ *            compare - When a function is provided then it is used for comparing the items. When a boolean `true` is provided
+ *            the array is sorted descendently. Otherwise (default) ascedent order is assumed.
  * 
  * @see https://en.wikipedia.org/wiki/Selection_sort
  */
-Array.prototype.selectionsort = function(desc) {
-    desc = desc || false;
+Array.prototype.selectionsort = function(compare) {
+    if ("function" != typeof compare) {
+        var desc = compare || false;
+        compare = function(a, b) {
+            return desc ? a < b : a > b;
+        }
+    }
 
     var that = this;
     /**
@@ -38,13 +44,14 @@ Array.prototype.selectionsort = function(desc) {
      * Get the position of the minimum|maximum value starting with a given element
      * 
      * @since 1.0
-     * @param {int} start - The start index
+     * @param {int}
+     *            start - The start index
      * @returns {int}
      */
     function minmax(start) {
         var m = that[start], p = start;
         for (var i = start + 1; i < that.length; i += 1) {
-            if ((!desc && that[i] < m) || (desc && that[i] > m)) {
+            if (compare(m, that[i])) {
                 m = that[i];
                 p = i;
             }

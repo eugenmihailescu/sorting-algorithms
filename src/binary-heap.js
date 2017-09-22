@@ -8,17 +8,21 @@
  * @class
  * @param {array|object=}
  *            list - The initial list to populate the heap
+ * @param {bool=}
+ *            noinit - When true then the `build` function must be called manually. Default the heap is built automatically.
  * @see {@link BinaryHeap.prototype.compare}
  */
-function BinaryHeap(list, undefined) {
+function BinaryHeap(list, noinit) {
     // /////////// private /////////////
     var that = this;
+    noinit = noinit || false;
 
     /**
      * Validates the index against the heap
      * 
      * @since 1.0
-     * @param {int} index - The node's index
+     * @param {int}
+     *            index - The node's index
      * @returns {int} If valid index is given then just returns the given index, otherwise -1
      */
     function sanitizeIndex(index) {
@@ -29,7 +33,8 @@ function BinaryHeap(list, undefined) {
      * Down-top heapify
      * 
      * @since 1.0
-     * @param {int} index - The index of the item to heap-up
+     * @param {int}
+     *            index - The index of the item to heap-up
      * @returns {int} Returns the new position of the index
      */
     function heapUp(index) {
@@ -58,7 +63,8 @@ function BinaryHeap(list, undefined) {
      * Get the parent node's index of the node given by the index
      * 
      * @since 1.0
-     * @param {int} index - The node's index
+     * @param {int}
+     *            index - The node's index
      * @returns {int} Returns the index of the parent node
      */
     this.parentNode = function(index) {
@@ -69,7 +75,8 @@ function BinaryHeap(list, undefined) {
      * Get the left child index of a node given by index
      * 
      * @since 1.0
-     * @param {int} index - The node's index
+     * @param {int}
+     *            index - The node's index
      * @returns {int} - If found returns the index of the left child of index, otherwise -1
      */
     this.leftChildIndex = function(index) {
@@ -80,7 +87,8 @@ function BinaryHeap(list, undefined) {
      * Get the right child index of a node given by index
      * 
      * @since 1.0
-     * @param {int} index - The node's index
+     * @param {int}
+     *            index - The node's index
      * @returns {int} If found returns the index of the right child of index, otherwise -1
      */
     this.rightChildIndex = function(index) {
@@ -91,7 +99,8 @@ function BinaryHeap(list, undefined) {
      * Get the sibling child index of a node given by index
      * 
      * @since 1.0
-     * @param {int} index - The node's index
+     * @param {int}
+     *            index - The node's index
      * @returns {int} - If found returns the sibling index, otherwise -1
      */
     this.siblingIndex = function(index) {
@@ -128,8 +137,10 @@ function BinaryHeap(list, undefined) {
      * Swap two nodes of the heap
      * 
      * @since 1.0
-     * @param {int} from - The old index
-     * @param {int} to - The new index
+     * @param {int}
+     *            from - The old index
+     * @param {int}
+     *            to - The new index
      * @returns {int} - Returns the new index of the `from` node
      */
     this.swap = function(from, to) {
@@ -144,7 +155,8 @@ function BinaryHeap(list, undefined) {
      * Top-down heapify
      * 
      * @since 1.0
-     * @param {int} index - The index of the item to heap-down
+     * @param {int}
+     *            index - The index of the item to heap-down
      * @returns {int} Returns the new position of the index
      */
     this.heapDown = function(index) {
@@ -181,7 +193,8 @@ function BinaryHeap(list, undefined) {
      * Adds a new item to the head
      * 
      * @since 1.0
-     * @param {object} value - The item's value
+     * @param {object}
+     *            value - The item's value
      * @returns {int} - The index of the newly added item
      */
     this.add = function(value) {
@@ -198,7 +211,8 @@ function BinaryHeap(list, undefined) {
      * Removes the node given by index
      * 
      * @since 1.0
-     * @param {int} index - The node's index to remove
+     * @param {int}
+     *            index - The node's index to remove
      * @returns {int} Returns the value of the removed item on success, undefined otherwise.
      */
     this.remove = function(index) {
@@ -225,7 +239,8 @@ function BinaryHeap(list, undefined) {
      * Build the heap from the given list
      * 
      * @since 1.0
-     * @param {object|array=} list - The list which values will build-up the heap. Null allowed.
+     * @param {object|array=}
+     *            list - The list which values will build-up the heap. Null allowed.
      * @returns {array} - Returns the heap array
      */
     this.assign = function(list) {
@@ -245,18 +260,31 @@ function BinaryHeap(list, undefined) {
         }
     };
 
+    /**
+     * Build-up the heap
+     */
+    this.build = function() {
+        that.assign(list);
+    };
+
     this.init();
-    this.assign(list);
+
+    if (!noinit) {
+        that.build();
+    }
 }
 
 /**
  * The heap elements compare function. Default compares elements based on their natural order.
  * 
  * @since 1.0
- * @param {object} a - The first element
- * @param {object} b - The second element
+ * @param {object}
+ *            a - The first element
+ * @param {object}
+ *            b - The second element
  * @returns {bool} - Returns true if a > b, false otherwise
  */
 BinaryHeap.prototype.compare = function(a, b) {
+    print('XXXX');
     return a > b;
 }

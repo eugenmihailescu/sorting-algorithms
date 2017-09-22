@@ -9,12 +9,19 @@
  * @version 1.0
  * 
  * @class
- * @param {bool}
- *            desc - When true then sort the array in descendent order, otherwise in ascendent order
+ * @param {function|boolean=}
+ *            compare - When a function is provided then it is used for comparing the items. When a boolean `true` is provided
+ *            the array is sorted descendently. Otherwise (default) ascedent order is assumed.
  * @see https://en.wikipedia.org/wiki/Merge_sort
  */
-Array.prototype.mergesort = function(desc) {
-    desc = desc || false;
+Array.prototype.mergesort = function(compare) {
+    if ("function" != typeof compare) {
+        var desc = compare || false;
+        compare = function(a, b) {
+            return desc ? a < b : a > b;
+        }
+    }
+
     var that = this;
 
     /**
@@ -35,7 +42,7 @@ Array.prototype.mergesort = function(desc) {
 
         // create a new array by inserting the element of the left/right in a sorted maner
         while (il < llen && ir < rlen) {
-            if ((!desc && left[il] < right[ir]) || (desc && left[il] > right[ir])) {
+            if (compare(right[ir], left[il])) {
                 result.push(left[il]);
                 il += 1;
             } else {

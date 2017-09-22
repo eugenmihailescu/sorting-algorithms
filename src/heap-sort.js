@@ -9,20 +9,37 @@
  * @version 1.0
  * 
  * @class
- * @param {bool}
- *            desc - When true then sort the array in descendent order, otherwise in ascendent order
+ * @param {function|boolean=}
+ *            compare - When a function is provided then it is used for comparing the items. When a boolean `true` is provided
+ *            the array is sorted descendently. Otherwise (default) ascedent order is assumed.
  * @see https://en.wikipedia.org/wiki/Heapsort
  * @see https://github.com/eugenmihailescu/sorting-algorithms/blob/master/src/binary-heap.js
  */
-Array.prototype.heapsort = function(desc) {
-    desc = desc || false;
+Array.prototype.heapsort = function(compare) {
+    var result = [];
 
-    var result = [], fn = desc ? "push" : "unshift";
-    
-    var heap = new BinaryHeap(this);
+    var heap = new BinaryHeap(this, true);
+
+    if ("undefined" != typeof compare) {
+        if ("function" != typeof compare) {
+            var desc = compare || false;
+
+            compare = function(a, b) {
+                if (desc)
+                    return a < b;
+                else
+                    return a > b;
+            }
+        }
+    } else {
+        compare = heap.compare;
+    }
+
+    heap.compare = compare;
+    heap.build();
 
     while (heap.heap.length) {
-        result[fn].call(result, heap.remove(0));
+        result.unshift(heap.remove(0));
     }
 
     return result;
