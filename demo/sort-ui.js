@@ -13,9 +13,6 @@
 function SortUI($) {
     var that = this;
 
-    var dec_sep = Number(1.1).toLocaleString().substring(1, 2);
-    var precision = 5; // truncate the number of decimals to 5
-
     var watchDogFreq = 50; // process the job queue each 50ms
     var cleanUpFreq = 1000; // check if finalized each 1000ms
 
@@ -44,24 +41,6 @@ function SortUI($) {
     }
 
     /**
-     * Get the formatted representation of a number
-     * 
-     * @param {number}
-     *            time - The number to format
-     * @param {string}
-     *            suffix - The suffix to add after the time string (default "ms")
-     * @returns {string}
-     */
-    function getTimeFormat(time, suffix) {
-        if ("undefined" == typeof suffix) {
-            suffix = " ms";
-        }
-        var r = new RegExp("(\\d+\\" + dec_sep + "\\d{" + precision + "}).*", "g"), p = new RegExp("(\\" + dec_sep
-                + "\\d+?)0*$", "g")
-        return String(time).replace(r, "$1").replace(p, "$1") + suffix;
-    }
-
-    /**
      * Set the status and progress for the given elements
      * 
      * @param {int}
@@ -87,24 +66,6 @@ function SortUI($) {
         for ( var i in sampleAvg) {
             if (sampleAvg.hasOwnProperty(i)) {
                 if (sampleAvg[i] < v) {
-                    v = sampleAvg[i];
-                    a = i;
-                }
-            }
-        }
-        return a;
-    }
-
-    /**
-     * Get the algorithm name which scored the worst time
-     * 
-     * @returns {string}
-     */
-    function maxAvg() {
-        var v = 0, a = false;
-        for ( var i in sampleAvg) {
-            if (sampleAvg.hasOwnProperty(i)) {
-                if (sampleAvg[i] > v) {
                     v = sampleAvg[i];
                     a = i;
                 }
@@ -144,41 +105,17 @@ function SortUI($) {
      * The Worker error handler
      * 
      * @param {Event}
+     *            e - The error event
      */
-    function onError(event) {
-        throw event.data;
-    }
-
-    /**
-     * Get the averaged execution time for a given algorithm
-     * 
-     * @param {string}
-     *            algo - The name of the algorithm
-     * @returns {number} - Returns the average execution time
-     */
-    function getAvgExecTime(algo) {
-        var avg = 0, k = 0;
-        for ( var i in that.sender.exectimes) {
-            if (that.sender.exectimes.hasOwnProperty(i)) {
-                for ( var j in that.sender.exectimes[i]) {
-                    if (j == algo && that.sender.exectimes[i].hasOwnProperty(j)) {
-                        k++;
-                        avg += that.sender.exectimes[i][j];
-                    }
-                }
-            }
-        }
-
-        sampleAvg[algo] = avg / k;
-
-        return sampleAvg[algo];
+    function onError(e) {
+        throw e.data;
     }
 
     /**
      * Callback when a job is done
      * 
-     * @param {Object}
-     *            e - An object that contains info about the job status
+     * @param {Event}
+     *            e - The event that contains the data object
      */
     function onDone(e) {
         var el = $(".algorithm." + e.data.algo + " td:last-child");
@@ -204,7 +141,7 @@ function SortUI($) {
 
             if (percAlgo >= 100) {
                 // update the result and remove the progress bar
-                $(el).text(getTimeFormat(getAvgExecTime(e.data.algo)));
+                $(el).text(that.sender.getTimeFormat(that.sender.getExecTime(e.data.algo)));
                 $(el).css("background", "");
             }
 
@@ -324,16 +261,16 @@ function SortUI($) {
             if (!queue.length && !getRunningWorkers()) {
                 terminateWorkers();
 
-                var best = minAvg(), worst = maxAvg();
+                var rating = that.sender.execTimeRating();
 
                 // highlight the best|worst algorithm
                 for (var i = 0; i < that.sender.algorithms.length; i += 1) {
                     var algo = that.sender.algorithms[i][0];
                     var el = $(".algorithm." + algo);
-                    if (algo == best) {
+                    if (algo == rating.best) {
                         $(el).addClass("best");
                     }
-                    if (algo == worst && algo != best) {
+                    if (algo == rating.worst && algo != rating.best) {
                         $(el).addClass("worst");
                     }
                 }

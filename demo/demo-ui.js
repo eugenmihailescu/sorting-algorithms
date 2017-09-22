@@ -12,6 +12,8 @@
  */
 function DemoUI($) {
     var that = this;
+    var dec_sep = Number(1.1).toLocaleString().substring(1, 2);
+    var precision = 5; // truncate the number of decimals to 5
 
     this.algorithms = [ [ "sort", "Array.sort" ], [ "insertionsort", "Insertion" ], [ "bubblesort", "Bubble" ],
             [ "quicksort", "Quick" ], [ "mergesort", "Merge" ], [ "heapsort", "Heap" ], [ "selectionsort", "Selection" ] ];
@@ -20,11 +22,13 @@ function DemoUI($) {
 
     var itemcount = $("input#itemcount");
     var samplecount = $("input#samplecount");
+    var minsample = $("input#minsample");
+    var maxsample = $("input#maxsample");
     var runinthread = $("#runinthread");
     var runinui = $("#runinpage");
     var jobs = $("#jobs");
     var jobsmax = this.algorithms.length;
-    this.exectimes;
+    var canChart = true;
 
     /**
      * Block the UI while on progress
@@ -72,7 +76,21 @@ function DemoUI($) {
      * 
      */
     function onRunMethodChange() {
-        $(jobs).prop("disabled", !that.supportsWorker || $(runinui).prop("checked"));
+        jobs.prop("disabled", !that.supportsWorker || runinui.prop("checked"));
+    }
+
+    function drawChart() {
+
+        if (!that.exectimes || !canChart) {
+            return;
+        }
+
+        var c = new ChartUI($);
+        c.sender = that;
+        c.minSample = minsample.val();
+        c.maxSample = maxsample.val();
+
+        google.charts.setOnLoadCallback(c.drawChart());
     }
 
     /**
@@ -91,18 +109,21 @@ function DemoUI($) {
         // setTimeout allows the UI to sync while running on the main UI thread
         setTimeout(function() {
             var callback = function() {
-                onChartClick();
-                var c = new ChartUI($);
-                c.sender = that;
+                var total = that.getExecTime(), suffix = total > 1000 ? "s" : "";
 
-                google.charts.setOnLoadCallback(c.drawChart());
+                $("span#status").text("~" + that.getTimeFormat(Math.round(total / (total > 1000 ? 1000 : 1)), suffix));
+                onChartClick();
+
+                canChart = true;
+                drawChart();
+
                 unBlockUI();
             };
 
             var s = new SortUI($);
-            s.runAsWorker = $(runinthread).prop("checked") && that.supportsWorker;
-            s.workerCount = parseInt($(jobs).val());
-            s.sample = parseInt($(samplecount).val());
+            s.runAsWorker = runinthread.prop("checked") && that.supportsWorker;
+            s.workerCount = parseInt(jobs.val());
+            s.sample = parseInt(samplecount.val());
             s.sender = that;
 
             s.sort(callback);
@@ -124,7 +145,7 @@ function DemoUI($) {
         $(".algorithms").addClass("hidden");
         $(".chart-wrapper").removeClass("hidden");
         $("#btnChart").removeClass("hidden");
-        $("span#status").addClass("hidden");
+        // $("span#status").addClass("hidden");
     }
 
     /**
@@ -137,30 +158,146 @@ function DemoUI($) {
         }
     }
 
+    /**
+     * Get the total execution time grouped by sorting algorithm
+     * 
+     * @returns {array}
+     */
+    function groupExecTime() {
+        var array = [];
+
+        for ( var i in that.exectimes[0]) {
+            if (that.exectimes[0].hasOwnProperty(i)) {
+                array[i] = that.getExecTime(i);
+            }
+        }
+
+        return array;
+    }
+
+    /**
+     * Get the formatted representation of a number
+     * 
+     * @param {number}
+     *            time - The number to format
+     * @param {string}
+     *            suffix - The suffix to add after the time string (default "ms")
+     * @returns {string}
+     */
+    this.getTimeFormat = function(time, suffix) {
+        suffix = suffix || " ms";
+
+        var r = new RegExp("(\\d+\\" + dec_sep + "\\d{" + precision + "}).*", "g"), p = new RegExp("(\\" + dec_sep
+                + "\\d+?)0*$", "g")
+        return String(time).replace(r, "$1").replace(p, "$1") + " " + suffix;
+    };
+
+    /**
+     * Get the total cumulated execution time
+     * 
+     * @param {string}
+     *            algo - When specified then filter the result for that algorithm only. Default all.
+     * @returns {float} - Returns the execution time
+     */
+    this.getExecTime = function(algo) {
+        algo = algo || false;
+
+        var total = 0;
+        for ( var i in that.exectimes) {
+            if (that.exectimes.hasOwnProperty(i)) {
+                for ( var j in that.exectimes[i]) {
+                    if ((!algo || j == algo) && that.exectimes[i].hasOwnProperty(j)) {
+                        total += that.exectimes[i][j];
+                    }
+                }
+            }
+        }
+
+        return total;
+    };
+
+    /**
+     * Get the algorithm's name which scored the best|worst time
+     * 
+     * @returns {object}
+     */
+    this.execTimeRating = function() {
+        var result = {
+            best : false,
+            worst : false
+        }, vb = 9e9, vw = 0;
+
+        var array = groupExecTime();
+
+        for ( var i in array) {
+            if (array.hasOwnProperty(i)) {
+                if (array[i] < vb) {
+                    vb = array[i];
+                    result.best = i;
+                }
+                if (array[i] > vw) {
+                    vw = array[i];
+                    result.worst = i;
+                }
+            }
+        }
+
+        return result;
+    };
+
+    /**
+     * Stores the individual execution time
+     * 
+     * @type {array} An multidimensional array [sample][algorithm]
+     */
+    this.exectimes;
+
     // if browser provides # of CPU cores
     if (navigator.hardwareConcurrency) {
         jobsmax = Math.min(navigator.hardwareConcurrency, this.algorithms.length);
     }
-    $(jobs).prop("max", jobsmax);
-    $(jobs).val(jobsmax);
+    jobs.prop("max", jobsmax);
+    jobs.val(jobsmax);
 
-    $(runinthread).prop("disabled", !this.supportsWorker);
-    $(runinthread).prop("checked", this.supportsWorker);
+    runinthread.prop("disabled", !this.supportsWorker);
+    runinthread.prop("checked", this.supportsWorker);
 
     // handle the UI events
-    $(itemcount).on("input", onRangeChange);
-    $(samplecount).on("input", onRangeChange);
-    $(runinthread).on("input", onRunMethodChange);
-    $(runinui).on("input", onRunMethodChange);
-    $("#btnSort").on("click", onSortClick);
-    $("#btnBack").on("click", onBackClick);
-    $("#btnChart").on("click", onChartClick);
+    itemcount.off("input").on("input", onRangeChange);
+    samplecount.off("input").on("input", function() {
+        canChart = false;
+        onRangeChange.call(this);
+        var val = $(this).val() - 1, middle = Math.floor(val / 2);
+        minsample.prop("max", middle + 1).val(0).trigger("input");
+        maxsample.prop("min", middle + 1).prop("max", val).val(val).trigger("input");
+        $("#middlesample").text(middle + 1);
+
+        if (val < 1) {
+            $(".range-sample").addClass("hidden");
+        } else {
+            $(".range-sample").removeClass("hidden");
+        }
+    });
+    $("input#minsample,input#maxsample").off("input mousedown mouseup").on("input", function() {
+        onRangeChange.call(this);
+        drawChart();
+    }).on("mousedown", function() {
+        canChart = false;
+    }).on("mouseup", function() {
+        canChart = true;
+        drawChart();
+    });
+    runinthread.off("input").on("input", onRunMethodChange);
+    runinui.off("input").on("input", onRunMethodChange);
+    $("#btnSort").off("click").on("click", onSortClick);
+    $("#btnBack").off("click").on("click", onBackClick);
+    $("#btnChart").off("click").on("click", onChartClick);
 
     // init the UI events
-    $(runinui).trigger("input");
-    $(itemcount).trigger("input");
-    $(samplecount).trigger("input");
-
+    runinui.trigger("input");
+    itemcount.trigger("input");
+    samplecount.trigger("input");
+    $("input#minsample,input#maxsample").trigger("input");
 }
 
 var ui = new DemoUI(jQuery);

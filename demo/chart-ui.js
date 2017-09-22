@@ -16,6 +16,8 @@ function ChartUI($) {
     var maxBarSeries = 5;
 
     this.sender = null;
+    this.minSample = 0;
+    this.maxSample = 9e9;
 
     /**
      * Returns the algorithm element by its name
@@ -34,6 +36,17 @@ function ChartUI($) {
         }
 
         return result;
+    }
+
+    /**
+     * Check if value is within the sample range
+     * 
+     * @param {int}
+     *            value - The value
+     * @returns {bool} - Returns true if value in range, false otherwise
+     */
+    function inRange(value) {
+        return value >= that.minSample && value <= that.maxSample;
     }
 
     /**
@@ -56,7 +69,9 @@ function ChartUI($) {
             }
         } else {
             for (var i = 0; i < that.sender.exectimes.length; i += 1) {
-                result.push('sample' + i);
+                if (inRange(i)) {
+                    result.push('sample' + i);
+                }
             }
             result.unshift('Algorithm');
             result.push({
@@ -116,6 +131,10 @@ function ChartUI($) {
 
             var series = [];
             for (var j = 0; j < that.sender.exectimes.length; j += 1) {
+                if (!inRange(j)) {
+                    continue;
+                }
+
                 var sample = [ j ];
 
                 for ( var i in that.sender.exectimes[j]) {
@@ -130,6 +149,10 @@ function ChartUI($) {
             var rows = [], colors = [ "#3366CC", "#DC3912", "#FF9900", "#109618", "#990099", "#0099C6", "#DD4477" ], c = 0;
 
             for (var j = 0; j < that.sender.exectimes.length; j += 1) {
+                if (!inRange(j)) {
+                    continue;
+                }
+
                 for ( var i in that.sender.exectimes[j]) {
                     if (that.sender.exectimes[j].hasOwnProperty(i)) {
                         rows.push([ getAlgorithmByName(i), that.sender.exectimes[j][i], colors[c++] ]);
@@ -139,7 +162,9 @@ function ChartUI($) {
             if (that.sender.exectimes.length > 1) {
                 rows = mergeRows2Cols(rows, 0);
             }
-            rows.unshift(columns.slice(0, rows[0].length));
+            if (rows.length) {
+                rows.unshift(columns.slice(0, rows[0].length));
+            }
 
             data = google.visualization.arrayToDataTable(rows);
         }
