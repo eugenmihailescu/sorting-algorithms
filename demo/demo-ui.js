@@ -306,25 +306,28 @@ function DemoUI($) {
     var header = $(".header");
     var header_toggle = $(".header-toggle");
 
-    var toggle_header = function(direction, vOffset, maxOffset) {
-        var opacity = parseFloat(header_toggle.css("opacity")),oStep=direction*0.5/((maxOffset-vOffset)/5);
+    var toggle_header = function(direction, vOffset, maxOffset, oOffset) {
+        var opacity = oOffset;
+        var oStep = -direction * 33 / (maxOffset - vOffset);
         var i = setInterval(function() {
-            vOffset += 5;
-            opacity -= oStep;
-            header.css("margin-top", direction * vOffset);
-            header_toggle.css("opacity", opacity);
-
             if (vOffset > maxOffset) {
                 clearInterval(i);
             }
+            console.log(oStep);
+            vOffset += 5;
+            opacity += oStep * 5;
+            header.css("margin-top", direction * vOffset);
+
+            header_toggle.css("margin-top", opacity);
+
         }, 20);
     };
 
     $(".close-header").off("click").on("click", function() {
-        toggle_header(-1, 0, header.get(0).clientHeight + 15);
+        toggle_header(-1, 0, header.get(0).clientHeight + 15, -33);
     });
     header_toggle.off("click").on("click", function() {
-        toggle_header(1, parseInt(header.css("margin-top").replace("px", "")), 0);
+        toggle_header(1, parseInt(header.css("margin-top").replace("px", "")), 0, -8);
     });
 }
 

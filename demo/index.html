@@ -33,12 +33,12 @@
 			<p>By running the sorting in the UI-thread the UI is blocked until the sorting function is terminated.</p>
 			<p>However, running the sorting in a parallel thread (as a background Worker) the sorting and the UI don't block each other.</p>
 		</div>
-		<div class="header-toggle"></div>
+		<div class="header-toggle">i</div>
 		<table class="algorithms">
 			<tr>
 				<td><label for="itemcount">Number of items</label></td>
 				<td></td>
-				<td colspan="2"><input id="itemcount" type="range" min="100" max="100000" value="10000" step="100"><span id="itemcount"></span></td>
+				<td colspan="2"><input class="input-range" id="itemcount" type="range" min="100" max="100000" value="10000" step="100"><span id="itemcount"></span></td>
 			</tr>
 			<tr>
 				<td><label for="itemtype">Item's type</label></td>
@@ -52,14 +52,14 @@
 						<tr>
 							<td><input id="runinpage" type="radio" name="runas" checked="checked"><label for="runinpage">UI</label></td>
 							<td><input id="runinthread" type="radio" name="runas"><label for="runinthread">worker</label></td>
-							<td><input id="jobs" type="number" min="1" max="5" value="1"><label for="jobs">jobs</label></td>
+							<td><input class=".input-number" id="jobs" type="number" min="1" max="5" value="1"><label for="jobs">jobs</label></td>
 						</tr>
 					</table></td>
 			</tr>
 			<tr>
 				<td><label for="samplecount">Run samples</label></td>
 				<td></td>
-				<td colspan="2"><input id="samplecount" type="range" min="1" max="1000" value="1" step="1"><span id="samplecount"></span></td>
+				<td colspan="2"><input class="input-range" id="samplecount" type="range" min="1" max="1000" value="1" step="1"><span id="samplecount"></span></td>
 			</tr>
 			<tr class="algorithm sort">
 				<td><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort" target="_blank">Array built-in sort</a></td>
@@ -118,9 +118,9 @@
 		<div class="range-sample">
 			<table>
 				<tr>
-					<td><span class="range-caption">left</span><span id="minsample"></span><input id="minsample" type="range" min="0" value="0"></td>
+					<td><span class="range-caption">left</span><span id="minsample"></span><input class="input-range" id="minsample" type="range" min="0" value="0"></td>
 					<td><span id="middlesample"></span></td>
-					<td><span class="range-caption">right</span><span id="maxsample"></span><input id="maxsample" type="range"></td>
+					<td><span class="range-caption">right</span><span id="maxsample"></span><input class="input-range" id="maxsample" type="range"></td>
 				</tr>
 			</table>
 		</div>
@@ -151,6 +151,10 @@
 	<script type="text/javascript">
         google.charts.load('current', {
             packages : [ 'corechart' ]
+        });
+
+        $("body").ready(function() {
+            $("#btnSort").css("display", "inherit");
         });
     </script>
 

@@ -119,21 +119,16 @@ p {
 	top: -8px;
 	right: -8px;
 	width: 40px;
-	height: 40px;
+	height: 30px;
 	background: #F0F8FF;
 	border-radius: 10px;
-	opacity: 0;
+	margin-top: -41px;
 	border: 1px solid dodgerblue;
-}
-
-.header-toggle:after {
-	content: "i";
-	margin-left: .9em;
-	margin-top: .8em;
-	position: fixed;
+	padding-top: 10px;
+	text-align: center;
+	cursor: pointer;
 	color: dodgerblue;
 	font-weight: bold;
-	cursor: pointer;
 }
 
 .footer {
@@ -369,4 +364,8 @@ input#jobs, select, input[type="button"] {
 
 span#minsample, span#maxsample {
 	margin-left: .5em;
+}
+
+#btnSort {
+	display: none;
 }
