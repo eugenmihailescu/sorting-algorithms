@@ -41,11 +41,14 @@ The algorithms time complexity, its simplicity and performance:
 |BubbleSort |n-1        |n(n-1)/2    |simple    | *     |
 
 A benchmark demo application is included. It allows to compare the performances of the algorithms by displaying the results in a graph ([via Google Chart API](https://developers.google.com/chart/)).
+
 Features:
 - testing aginst randomly generated arrays (string|integer)
 - allows running against various array's sizes (100-100k items)
 - allows running against several sample data (1-1000) to get a statically valid probability of their performance
 - allows running in parallel threads by using [Web Worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers)
 - displays the results both numerically and graphically (as bar, stacked bar, lines); the graphs can be zoomed at various levels
+
+![500 arrays of 10000 integer](https://raw.githubusercontent.com/eugenmihailescu/sorting-algorithms/master/demo/screenshots/benchmark-500sample.png)
 
 The demo is very usefull if you want to compare the algorithms' performances on various browsers/OS (the JavaScript engines usually differ from browser to browser).
