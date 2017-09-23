@@ -28,6 +28,7 @@ a.quicksort(function(m, n) {
   return m > n;
 });
 ```
+
 The algorithms time complexity, its simplicity and performance:
 
 | Algorithm | Best case | Worst case |Simplicity| Speed |
