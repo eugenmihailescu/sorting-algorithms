@@ -375,6 +375,167 @@ function ChartUI($) {
     }
 
     /**
+     * Save the current SVG to file
+     * 
+     * @param {object}
+     *            svg - The SVG element
+     * @param {string=}
+     *            format - The image format (svg|png). Default to `svg`.
+     * @param {string=}
+     *            filename - The name of the local saved file
+     */
+    this.saveChart = function(svg, format, filename) {
+        format = format || "svg";
+
+        var svgClass = "class_" + String(Math.random()).split(".").pop();
+        var canvas = document.createElement("canvas");
+        var context = canvas.getContext("2d");
+        var svgSize = svg.getBoundingClientRect();
+        canvas.width = svgSize.width;
+        canvas.height = svgSize.height;
+        svg = $(svg);
+
+        /**
+         * Calculate the text width based on its font size
+         */
+        var getTextWidth = function(text, font) {
+            font && (context.font = font);
+            var metrics = context.measureText(text);
+
+            return metrics.width;
+        };
+
+        var getNavigator = function() {
+            var prop = [ "appName", "userAgent", "platform", "hardwareConcurrency", "platform" ], result = {};
+            for (var i = 0; i < prop.length; i += 1) {
+                if (navigator[prop[i]]) {
+                    result[prop[i]] = navigator[prop[i]];
+                } else {
+                    result[prop[i]] = false;
+                }
+            }
+
+            if (result.userAgent) {
+                result.userAgent = result.userAgent.split(" ").pop();
+            }
+
+            if (result.hardwareConcurrency) {
+                result.hardwareConcurrency += "CPU";
+            }
+            return result;
+        };
+
+        /**
+         * Append a link element to the SVG
+         * 
+         * @param {string=}
+         *            text - The text to create
+         * @param {int=}
+         *            line - The line number (1=top)
+         * @param {string=}
+         *            align - left|right. Default `left`.
+         * @param {int=}
+         *            fontSize - The font size in pixels. Default to SVG element.
+         * @returns {object} - Returns the newly added SVG element
+         */
+        var addText = function(text, line, align, fontSize) {
+            line = line || 1;
+            align = align || "left";
+            fontSize = fontSize || that.sender.stripPixel(svg.css("font-size"));
+
+            // 96DPI/72PPI
+            var scaleFactorX = 96 / 72;
+            var scaleFactorY = 96 / 72;
+
+            // make it 2-chars longer
+            var textSize = getTextWidth("__" + text, fontSize + "px " + svg.css("font-family"));
+
+            var textHeight = fontSize * scaleFactorY;// assuming a font of 12px
+            var x = 0, y = 0;
+
+            switch (align) {
+            case "right":
+                x = that.sender.stripPixel(svg.attr("width")) - textSize/scaleFactorX;
+                /** scaleFactorX */
+                break;
+            default:
+                x = 0;
+                break;
+            }
+
+            y = (line) * textHeight;
+
+            var txt = $(document.createElementNS('http://www.w3.org/2000/svg', 'text'));
+
+            txt.attr("x", x);
+            txt.attr("y", y);
+            txt.attr("font-size", fontSize);
+            text && txt.text(text);
+            txt.attr("class", svgClass);
+            txt.appendTo(svg);
+
+            return txt;
+        };
+
+        var saveAs = {
+            dataPNG : function(promise) {
+                var svgData = new XMLSerializer().serializeToString(svg.get(0));
+
+                var img = document.createElement("img");
+                img.setAttribute("src", "data:image/svg+xml;base64," + btoa(svgData));
+
+                img.onload = function() {
+                    context.drawImage(img, 0, 0);
+                    canvas.toBlob(function(blob) {
+                        promise && promise({
+                            type : "image/png",
+                            blob : blob,
+                            ext : "png"
+                        });
+                    });
+                };
+
+            },
+            dataSVG : function(promise) {
+                var blob = new Blob([ svg.get(0).outerHTML ], {
+                    type : "image/svg+xml;charset=utf-8"
+                });
+
+                promise && promise({
+                    type : "image/svg+xml;charset=utf-8",
+                    blob : blob,
+                    ext : "svg"
+                });
+            }
+        };
+
+        // add our watermark
+        var browser = getNavigator();
+        addText(window.location, 1, "right",12);
+        addText(browser.appName + " " + browser.userAgent + " (" + browser.platform + ", " + browser.hardwareConcurrency
+                + ")", 2, "right",12);
+
+        // save the SVG to blob and download locally the file
+        var promise = function(data) {
+            data.blob.lastModified = new Date();
+            data.blob.name = filename ? filename : ("file." + data.ext);
+
+            var downloadLink = document.createElement("a");
+            downloadLink.href = URL.createObjectURL(data.blob);
+            downloadLink.download = data.blob.name;
+            document.body.appendChild(downloadLink);
+
+            downloadLink.click();
+
+            // clean-up
+            document.body.removeChild(downloadLink);
+            $("." + svgClass).remove();
+        };
+
+        saveAs["data" + format.toUpperCase()].call(saveAs, promise);
+    };
+
+    /**
      * Draw the graph
      */
     this.drawChart = function() {

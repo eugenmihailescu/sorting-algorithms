@@ -207,7 +207,7 @@ input
 }
 
 .unBlockUI, .hidden {
-	display: none;
+	display: none !important;
 }
 
 #chart_div {
@@ -368,4 +368,23 @@ span#minsample, span#maxsample {
 
 #btnSort {
 	display: none;
+}
+
+.save {
+	display: inline-block;
+}
+
+.save input, .save select {
+	left: 0;
+	display: block;
+	width: 100%;
+}
+
+.chart-actions {
+	text-align: center;
+	margin-bottom: 5em;
+}
+
+.chart-actions tr {
+	vertical-align: top;
 }

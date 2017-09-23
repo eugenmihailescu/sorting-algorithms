@@ -124,9 +124,15 @@
 				</tr>
 			</table>
 		</div>
-		<div style="text-align: center; margin-bottom: 5em;">
-			<input id="btnBack" type="button" value="Back"> <input id="btnSave" type="button" value="Save">
-		</div>
+		<table class="chart-actions">
+			<tr>
+				<td><input id="btnBack" type="button" value="Back"></td>
+				<td class="save"><input id="btnSave" type="button" value="Save"><select id="saveChartAs" class="hidden" multiple>
+						<option value="svg">SVG</option>
+						<option value="png">PNG</option>
+				</select></td>
+			</tr>
+		</table>
 	</div>
 	<div class="footer">
 		(c) 2017 Eugen Mihailescu, <a href="http://mynixworld.info" target="_blank">mynixworld.info</a><br> Source: <a

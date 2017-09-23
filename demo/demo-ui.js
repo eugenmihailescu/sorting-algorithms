@@ -92,6 +92,28 @@ function DemoUI($) {
         c.minSample = minsample.val();
         c.maxSample = maxsample.val();
 
+        var saveChartAs = $("#saveChartAs");
+
+        $("#btnSave").off("click").on("click", function() {
+            saveChartAs.toggleClass("hidden");
+            saveChartAs.focus();
+        });
+
+        saveChartAs.off("click keyup").on("click keyup", function(e) {
+            if ("keyup" == e.originalEvent.type && 13 != e.originalEvent.keyCode) {
+                e.preventDefault();
+                return false;
+            }
+            $(this).toggleClass("hidden");
+            c.saveChart(document.querySelector("#chart_div svg"), this.value);
+        }).off("mouseenter").on("mouseenter", function(e) {
+            saveChartAs.prop("selectedIndex", -1);
+        }).off("mouseleave").on("mouseleave", function(e) {
+            $(this).toggleClass("hidden");
+        }).off("mouseover").on("mouseover", function(e) {
+            saveChartAs.prop("selectedIndex", e.target.index);
+        });
+
         google.charts.setOnLoadCallback(c.drawChart());
     }
 
@@ -138,75 +160,6 @@ function DemoUI($) {
     function onBackClick() {
         $(".algorithms").removeClass("hidden");
         $(".chart-wrapper").addClass("hidden");
-    }
-
-    function onSaveClick() {
-        /**
-         * Calculate the text width based on its font size
-         */
-        var getTextWidth = function(text, font) {
-            var canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
-            var context = canvas.getContext("2d");
-            context.font = font;
-            var metrics = context.measureText(text);
-
-            return metrics.width;
-        };
-
-        /**
-         * Append a link element to the SVG
-         */
-        var addLink = function(svg, url, text, title, target) {
-            var scaleFactorX = 4/3, scaleFactorY = 4/3;
-            var textSize = getTextWidth("__"+text, "Verdana 1em");
-            var textHeight = 12 * scaleFactorY; // 12px divided by 72PPI/96DPI
-            var link = $("<a></a>").appendTo(svg);
-            url && link.attr("xlink:href", url);
-            link.css("fill", "#1E90FF");
-            link.appendTo(svg);
-
-            var txt = $("<text></text>");
-
-            txt.attr("x", that.stripPixel(svg.attr("width")) - textSize * scaleFactorX);
-            txt.attr("y", textHeight*scaleFactorY);
-            txt.attr("font-family", "Verdana");
-            txt.attr("font-size", "1em");
-            title && txt.attr("xlink:title", title);
-            target && txt.attr("xlink:show", target);
-            text && txt.text(text);
-
-            txt.appendTo(link);
-
-            return link;
-        };
-
-        var svg = $("#chart_div svg");
-
-        // xlink namespace is necessary in order to interpret the injected SVG link
-        svg.attr("xmlns:xlink", "http://www.w3.org/1999/xlink");
-
-        var url = "https://github.com/eugenmihailescu/sorting-algorithms";
-        var link = addLink(svg, url, url, "Source code on Github", "new");
-
-        var svgData = document.querySelector("#chart_div svg").outerHTML;
-
-        var svgBlob = new Blob([ svgData ], {
-            type : "image/svg+xml;charset=utf-8"
-        });
-        svgBlob.lastModified = new Date();
-        svgBlob.name = "sort-algo-chart.svg";
-
-        var svgUrl = URL.createObjectURL(svgBlob);
-        var downloadLink = document.createElement("a");
-        downloadLink.href = svgUrl;
-        downloadLink.download = svgBlob.name;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-
-        // SVG clean-up
-        link.remove();
-        svg.removeAttr("xmlns:xlink");
     }
 
     /**
@@ -317,7 +270,7 @@ function DemoUI($) {
     };
 
     this.stripPixel = function(str) {
-        str=str||"";
+        str = str || "";
         return parseInt(str.replace("px", ""));
     }
 
@@ -367,7 +320,6 @@ function DemoUI($) {
     runinui.off("input").on("input", onRunMethodChange);
     $("#btnSort").off("click").on("click", onSortClick);
     $("#btnBack").off("click").on("click", onBackClick);
-    $("#btnSave").off("click").on("click", onSaveClick);
     $("#btnChart").off("click").on("click", onChartClick);
 
     // init the UI events
