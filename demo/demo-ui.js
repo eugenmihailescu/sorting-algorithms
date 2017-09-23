@@ -317,6 +317,7 @@ function DemoUI($) {
     };
 
     this.stripPixel = function(str) {
+        str=str||"";
         return parseInt(str.replace("px", ""));
     }
 
