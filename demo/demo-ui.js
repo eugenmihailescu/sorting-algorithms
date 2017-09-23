@@ -48,7 +48,6 @@ function DemoUI($) {
 
     /**
      * Removes the BlockUI layer
-     * 
      */
     function unBlockUI() {
         blockUI(true);
@@ -74,7 +73,6 @@ function DemoUI($) {
 
     /**
      * Enable/disable UI options on run method change
-     * 
      */
     function onRunMethodChange() {
         jobs.prop("disabled", !that.supportsWorker || runinui.prop("checked"));
@@ -140,6 +138,75 @@ function DemoUI($) {
     function onBackClick() {
         $(".algorithms").removeClass("hidden");
         $(".chart-wrapper").addClass("hidden");
+    }
+
+    function onSaveClick() {
+        /**
+         * Calculate the text width based on its font size
+         */
+        var getTextWidth = function(text, font) {
+            var canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
+            var context = canvas.getContext("2d");
+            context.font = font;
+            var metrics = context.measureText(text);
+
+            return metrics.width;
+        };
+
+        /**
+         * Append a link element to the SVG
+         */
+        var addLink = function(svg, url, text, title, target) {
+            var scaleFactorX = 4/3, scaleFactorY = 4/3;
+            var textSize = getTextWidth("__"+text, "Verdana 1em");
+            var textHeight = 12 * scaleFactorY; // 12px divided by 72PPI/96DPI
+            var link = $("<a></a>").appendTo(svg);
+            url && link.attr("xlink:href", url);
+            link.css("fill", "#1E90FF");
+            link.appendTo(svg);
+
+            var txt = $("<text></text>");
+
+            txt.attr("x", that.stripPixel(svg.attr("width")) - textSize * scaleFactorX);
+            txt.attr("y", textHeight*scaleFactorY);
+            txt.attr("font-family", "Verdana");
+            txt.attr("font-size", "1em");
+            title && txt.attr("xlink:title", title);
+            target && txt.attr("xlink:show", target);
+            text && txt.text(text);
+
+            txt.appendTo(link);
+
+            return link;
+        };
+
+        var svg = $("#chart_div svg");
+
+        // xlink namespace is necessary in order to interpret the injected SVG link
+        svg.attr("xmlns:xlink", "http://www.w3.org/1999/xlink");
+
+        var url = "https://github.com/eugenmihailescu/sorting-algorithms";
+        var link = addLink(svg, url, url, "Source code on Github", "new");
+
+        var svgData = document.querySelector("#chart_div svg").outerHTML;
+
+        var svgBlob = new Blob([ svgData ], {
+            type : "image/svg+xml;charset=utf-8"
+        });
+        svgBlob.lastModified = new Date();
+        svgBlob.name = "sort-algo-chart.svg";
+
+        var svgUrl = URL.createObjectURL(svgBlob);
+        var downloadLink = document.createElement("a");
+        downloadLink.href = svgUrl;
+        downloadLink.download = svgBlob.name;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+
+        // SVG clean-up
+        link.remove();
+        svg.removeAttr("xmlns:xlink");
     }
 
     /**
@@ -249,6 +316,10 @@ function DemoUI($) {
         return result;
     };
 
+    this.stripPixel = function(str) {
+        return parseInt(str.replace("px", ""));
+    }
+
     /**
      * Stores the individual execution time
      * 
@@ -295,6 +366,7 @@ function DemoUI($) {
     runinui.off("input").on("input", onRunMethodChange);
     $("#btnSort").off("click").on("click", onSortClick);
     $("#btnBack").off("click").on("click", onBackClick);
+    $("#btnSave").off("click").on("click", onSaveClick);
     $("#btnChart").off("click").on("click", onChartClick);
 
     // init the UI events
@@ -306,19 +378,31 @@ function DemoUI($) {
     var header = $(".header");
     var header_toggle = $(".header-toggle");
 
-    var toggle_header = function(direction, vOffset, maxOffset, oOffset) {
-        var opacity = oOffset;
-        var oStep = -direction * 33 / (maxOffset - vOffset);
+    /**
+     * Toggle the page header
+     * 
+     * @param {int}
+     *            direction - When -1 then toggle OFF, when 1 then ON
+     * @param {int}
+     *            vOffset - The vertical offset of the header. Usually its top position.
+     * @param {int}
+     *            maxOffset - How much can the header diverge from its offset. Usually the header height.
+     * @param {int}
+     *            tOffset - The offset of the toggle. Usually its top position.
+     */
+    var toggle_header = function(direction, vOffset, maxOffset, tOffset) {
+        var tt = that.stripPixel(header_toggle.css("position-top"));
+        var tStep = -direction * 33 / (maxOffset - vOffset);
         var i = setInterval(function() {
             if (vOffset > maxOffset) {
                 clearInterval(i);
             }
-            console.log(oStep);
+
             vOffset += 5;
-            opacity += oStep * 5;
+            tOffset += tStep * 5;
             header.css("margin-top", direction * vOffset);
 
-            header_toggle.css("margin-top", opacity);
+            header_toggle.css("margin-top", tOffset);
 
         }, 20);
     };
@@ -327,7 +411,7 @@ function DemoUI($) {
         toggle_header(-1, 0, header.get(0).clientHeight + 15, -33);
     });
     header_toggle.off("click").on("click", function() {
-        toggle_header(1, parseInt(header.css("margin-top").replace("px", "")), 0, -8);
+        toggle_header(1, stripPixel(header.css("margin-top")), 0, -8);
     });
 }
 
