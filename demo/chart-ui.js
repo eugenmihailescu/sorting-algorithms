@@ -1,4 +1,22 @@
 "use strict";
+
+if (!HTMLCanvasElement.prototype.toBlob) {
+    Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
+        value : function(callback, type, quality) {
+
+            var binStr = atob(this.toDataURL(type, quality).split(',')[1]), len = binStr.length, arr = new Uint8Array(len);
+
+            for (var i = 0; i < len; i++) {
+                arr[i] = binStr.charCodeAt(i);
+            }
+
+            callback(new Blob([ arr ], {
+                type : type || 'image/png'
+            }));
+        }
+    });
+}
+
 /**
  * Generates the benchmark performance chart by Google Chart API
  * 
@@ -455,7 +473,7 @@ function ChartUI($) {
 
             switch (align) {
             case "right":
-                x = that.sender.stripPixel(svg.attr("width")) - textSize/scaleFactorX;
+                x = that.sender.stripPixel(svg.attr("width")) - textSize / scaleFactorX;
                 /** scaleFactorX */
                 break;
             default:
@@ -486,13 +504,16 @@ function ChartUI($) {
 
                 img.onload = function() {
                     context.drawImage(img, 0, 0);
-                    canvas.toBlob(function(blob) {
-                        promise && promise({
-                            type : "image/png",
-                            blob : blob,
-                            ext : "png"
+
+                    if ("undefined" != typeof HTMLCanvasElement.prototype.toBlob) {
+                        canvas.toBlob(function(blob) {
+                            promise && promise({
+                                type : "image/png",
+                                blob : blob,
+                                ext : "png"
+                            });
                         });
-                    });
+                    }
                 };
 
             },
@@ -511,9 +532,9 @@ function ChartUI($) {
 
         // add our watermark
         var browser = getNavigator();
-        addText(window.location, 1, "right",12);
+        addText(window.location, 1, "right", 12);
         addText(browser.appName + " " + browser.userAgent + " (" + browser.platform + ", " + browser.hardwareConcurrency
-                + ")", 2, "right",12);
+                + ")", 2, "right", 12);
 
         // save the SVG to blob and download locally the file
         var promise = function(data) {
@@ -521,7 +542,10 @@ function ChartUI($) {
             data.blob.name = filename ? filename : ("file." + data.ext);
 
             var downloadLink = document.createElement("a");
-            downloadLink.href = URL.createObjectURL(data.blob);
+
+            if ("undefined" != typeof URL) {
+                downloadLink.href = URL.createObjectURL(data.blob);
+            }
             downloadLink.download = data.blob.name;
             document.body.appendChild(downloadLink);
 

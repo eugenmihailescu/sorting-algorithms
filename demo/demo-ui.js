@@ -94,25 +94,29 @@ function DemoUI($) {
 
         var saveChartAs = $("#saveChartAs");
 
-        $("#btnSave").off("click").on("click", function() {
-            saveChartAs.toggleClass("hidden");
-            saveChartAs.focus();
-        });
+        if ("undefined" == typeof URL) {
+            $("#btnSave").prop("disabled", true).attr("title", "Not supported");
+        } else {
+            $("#btnSave").off("click").on("click", function() {
+                saveChartAs.toggleClass("hidden");
+                saveChartAs.focus();
+            });
 
-        saveChartAs.off("click keyup").on("click keyup", function(e) {
-            if ("keyup" == e.originalEvent.type && 13 != e.originalEvent.keyCode) {
-                e.preventDefault();
-                return false;
-            }
-            $(this).toggleClass("hidden");
-            c.saveChart(document.querySelector("#chart_div svg"), this.value);
-        }).off("mouseenter").on("mouseenter", function(e) {
-            saveChartAs.prop("selectedIndex", -1);
-        }).off("mouseleave").on("mouseleave", function(e) {
-            $(this).toggleClass("hidden");
-        }).off("mouseover").on("mouseover", function(e) {
-            saveChartAs.prop("selectedIndex", e.target.index);
-        });
+            saveChartAs.off("click keyup").on("click keyup", function(e) {
+                if ("keyup" == e.originalEvent.type && 13 != e.originalEvent.keyCode) {
+                    e.preventDefault();
+                    return false;
+                }
+                $(this).toggleClass("hidden");
+                c.saveChart(document.querySelector("#chart_div svg"), this.value);
+            }).off("mouseenter").on("mouseenter", function(e) {
+                saveChartAs.prop("selectedIndex", -1);
+            }).off("mouseleave").on("mouseleave", function(e) {
+                $(this).toggleClass("hidden");
+            }).off("mouseover").on("mouseover", function(e) {
+                saveChartAs.prop("selectedIndex", e.target.index);
+            });
+        }
 
         google.charts.setOnLoadCallback(c.drawChart());
     }
@@ -364,7 +368,7 @@ function DemoUI($) {
         toggle_header(-1, 0, header.get(0).clientHeight + 15, -33);
     });
     header_toggle.off("click").on("click", function() {
-        toggle_header(1, stripPixel(header.css("margin-top")), 0, -8);
+        toggle_header(1, that.stripPixel(header.css("margin-top")), 0, -8);
     });
 }
 
