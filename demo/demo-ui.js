@@ -15,6 +15,9 @@ function DemoUI($) {
     var dec_sep = Number(1.1).toLocaleString().substring(1, 2);
     var precision = 5; // truncate the number of decimals to 5
 
+    var arraySortURL = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort";
+    this.jsLibURL = "https://github.com/eugenmihailescu/sorting-algorithms";
+
     this.algorithms = [ [ "sort", "Array.sort", "#3366CC" ], [ "insertionsort", "Insertion", "#DC3912" ],
             [ "bubblesort", "Bubble", "#FF9900" ], [ "quicksort", "Quick", "#109618" ], [ "mergesort", "Merge", "#990099" ],
             [ "heapsort", "Heap", "#0099C6" ], [ "selectionsort", "Selection", "#DD4477" ] ];
@@ -91,6 +94,9 @@ function DemoUI($) {
         c.sender = that;
         c.minSample = minsample.val();
         c.maxSample = maxsample.val();
+        c.itemsCount = itemcount.val();
+        c.itemsType = $("#itemtype").val();
+        c.workerCount = $("#runinpage").prop("checked") ? 0 : jobs.val();
 
         var saveChartAs = $("#saveChartAs");
 
@@ -294,6 +300,17 @@ function DemoUI($) {
 
     runinthread.prop("disabled", !this.supportsWorker);
     runinthread.prop("checked", this.supportsWorker);
+
+    for (var i = 0; i < this.algorithms.length; i += 1) {
+        var url;
+        if ("sort" == this.algorithms[i][0]) {
+            url = arraySortURL;
+        } else {
+            url = this.jsLibURL + "/blob/master/src/" + this.algorithms[i][0].replace("sort", "-sort") + ".js";
+        }
+        $(".algorithm." + this.algorithms[i][0] + " a").attr("href", url);
+    }
+    $(".footer a").attr("href", this.jsLibURL).text(this.jsLibURL);
 
     // handle the UI events
     itemcount.off("input").on("input", onRangeChange);

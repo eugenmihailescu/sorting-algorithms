@@ -36,6 +36,10 @@ function ChartUI($) {
     this.sender = null;
     this.minSample = $("input#minsample").val();
     this.maxSample = $("input#maxsample").val();
+    this.itemsCount = $("input#itemcount").val();
+    this.itemsType = $("#itemtype").val();
+    this.workerCount = $("#runinpage").prop("checked") ? 0 : $("#jobs").val();
+
     this.exclude = [];
 
     /**
@@ -405,6 +409,10 @@ function ChartUI($) {
     this.saveChart = function(svg, format, filename) {
         format = format || "svg";
 
+        // 96DPI/72PPI
+        var scaleFactorX = 96 / 72;
+        var scaleFactorY = 96 / 72;
+
         var svgClass = "class_" + String(Math.random()).split(".").pop();
         var canvas = document.createElement("canvas");
         var context = canvas.getContext("2d");
@@ -446,53 +454,63 @@ function ChartUI($) {
         /**
          * Append a link element to the SVG
          * 
-         * @param {string=}
-         *            text - The text to create
-         * @param {int=}
-         *            line - The line number (1=top)
+         * @param {array|string=}
+         *            text - The text to create or an array of texts
          * @param {string=}
          *            align - left|right. Default `left`.
          * @param {int=}
          *            fontSize - The font size in pixels. Default to SVG element.
-         * @returns {object} - Returns the newly added SVG element
+         * @param {int=}
+         *            line - The line number (starting with 1=top). When `text` is an array then the array's item index is
+         *            used instead.
          */
-        var addText = function(text, line, align, fontSize) {
+        var addWatermark = function(text, align, fontSize, line) {
             line = line || 1;
-            align = align || "left";
-            fontSize = fontSize || that.sender.stripPixel(svg.css("font-size"));
+            text = text || "";
 
-            // 96DPI/72PPI
-            var scaleFactorX = 96 / 72;
-            var scaleFactorY = 96 / 72;
-
-            // make it 2-chars longer
-            var textSize = getTextWidth("__" + text, fontSize + "px " + svg.css("font-family"));
-
-            var textHeight = fontSize * scaleFactorY;// assuming a font of 12px
-            var x = 0, y = 0;
-
-            switch (align) {
-            case "right":
-                x = that.sender.stripPixel(svg.attr("width")) - textSize / scaleFactorX;
-                /** scaleFactorX */
-                break;
-            default:
-                x = 0;
-                break;
+            if ("Array" != text.constructor.name) {
+                text = [ text ];
             }
 
-            y = (line) * textHeight;
+            align = align || "left";
+            fontSize = fontSize || that.sender.stripPixel(svg.css("font-size"));
+            var fontFamily = svg.css("font-family");
+            var svgWidth = svg.attr("width");
 
-            var txt = $(document.createElementNS('http://www.w3.org/2000/svg', 'text'));
+            for (var i = 0; i < text.length; i += 1) {
+                if (text.length > 1) {
+                    line = i + 1;
+                }
 
-            txt.attr("x", x);
-            txt.attr("y", y);
-            txt.attr("font-size", fontSize);
-            text && txt.text(text);
-            txt.attr("class", svgClass);
-            txt.appendTo(svg);
+                // make it 2-chars longer
+                var textSize = getTextWidth("__" + text[i], fontSize + "px " + fontFamily);
 
-            return txt;
+                // assuming a font of 12px
+                var textHeight = fontSize * scaleFactorY;
+                var x = 0, y = 0;
+
+                switch (align) {
+                case "right":
+                    x = that.sender.stripPixel(svgWidth) - textSize / scaleFactorX;
+                    break;
+                default:
+                    // pad-left=1char
+                    x = textSize / text[i].length;
+                    break;
+                }
+
+                y = (line) * textHeight;
+
+                var txt = $(document.createElementNS('http://www.w3.org/2000/svg', 'text'));
+
+                txt.attr("x", x);
+                txt.attr("y", y);
+                txt.attr("font-size", fontSize);
+                text.length && txt.text(text[i]);
+                txt.attr("class", svgClass);
+                txt.attr("fill", "#708090");
+                txt.appendTo(svg);
+            }
         };
 
         var saveAs = {
@@ -532,9 +550,22 @@ function ChartUI($) {
 
         // add our watermark
         var browser = getNavigator();
-        addText(window.location, 1, "right", 12);
-        addText(browser.appName + " " + browser.userAgent + " (" + browser.platform + ", " + browser.hardwareConcurrency
-                + ")", 2, "right", 12);
+        var totalTime = that.sender.getExecTime();
+        var suffix = totalTime > 1000 ? "s" : "";
+        var xtime = that.sender.getTimeFormat(Math.round(totalTime / (totalTime > 1000 ? 1000 : 1)), suffix)
+        var xCPU = that.workerCount ? that.workerCount + "CPU" : "1UI";
+        var xSample = that.sender.exectimes.length > 1 ? that.sender.exectimes.length + " x " : "";
+
+        var watermark = [];
+        if (canvas.height > 500) {
+            watermark.push[window.location];
+        }
+        watermark.push(browser.appName + " " + browser.userAgent + " (" + browser.platform + ", "
+                + browser.hardwareConcurrency + ")");
+        watermark.push(xSample + that.itemsType + " array[" + that.itemsCount + "] @ " + xCPU + " ~ " + xtime);
+
+        addWatermark(watermark, "right", 12);
+        addWatermark(that.sender.jsLibURL, "left", 12, canvas.height / (scaleFactorY * 12) - 0.5);
 
         // save the SVG to blob and download locally the file
         var promise = function(data) {
