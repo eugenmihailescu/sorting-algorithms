@@ -108,20 +108,31 @@ function DemoUI($) {
                 saveChartAs.focus();
             });
 
-            saveChartAs.off("click keyup").on("click keyup", function(e) {
+            var x = function(e) {
                 if ("keyup" == e.originalEvent.type && 13 != e.originalEvent.keyCode) {
                     e.preventDefault();
                     return false;
                 }
                 $(this).toggleClass("hidden");
                 c.saveChart(document.querySelector("#chart_div svg"), this.value);
-            }).off("mouseenter").on("mouseenter", function(e) {
-                saveChartAs.prop("selectedIndex", -1);
-            }).off("mouseleave").on("mouseleave", function(e) {
-                $(this).toggleClass("hidden");
-            }).off("mouseover").on("mouseover", function(e) {
-                saveChartAs.prop("selectedIndex", e.target.index);
-            });
+            };
+
+            // only on non-touchable devices
+            if (!'ontouchstart' in document.documentElement) {
+                saveChartAs.off("click keyup").on("click keyup", x);
+
+                $("#btnSave").attr("multiple", "");
+
+                saveChartAs.off("mouseenter").on("mouseenter", function(e) {
+                    saveChartAs.prop("selectedIndex", -1);
+                }).off("mouseleave").on("mouseleave", function(e) {
+                    $(this).toggleClass("hidden");
+                }).off("mouseover").on("mouseover", function(e) {
+                    saveChartAs.prop("selectedIndex", e.target.index);
+                });
+            } else {
+                saveChartAs.off("change").on("change", x);
+            }
         }
 
         google.charts.setOnLoadCallback(c.drawChart());
