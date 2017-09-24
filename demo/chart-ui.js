@@ -557,8 +557,9 @@ function ChartUI($) {
         var xSample = that.sender.exectimes.length > 1 ? that.sender.exectimes.length + " x " : "";
 
         var watermark = [];
-        if (canvas.height > 500) {
-            watermark.push[window.location];
+
+        if (screen.width >= 480 || screen.height > 480) {
+            watermark.push(window.location);
         }
         watermark.push(browser.appName + " " + browser.userAgent + " (" + browser.platform + ", "
                 + browser.hardwareConcurrency + ")");
