@@ -19,8 +19,11 @@ body {
 	-moz-box-shadow: 0 0 10px #333;
 	-webkit-box-shadow: 0 0 10px #333;
 	box-shadow: 0 0 10px #333;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=10, Direction=0, Color='#333')";
+	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=10, Direction=0, Color='#333');
 }
 
+}
 @media screen and (min-height: 500px) {
 	.algorithms {
 		margin-bottom: 8em;
@@ -95,13 +98,23 @@ p {
 .close-header {
 	width: 20px;
 	height: 20px;
+	-webkit-border-radius: 50%;
+	-moz-border-radius: 50%;
 	border-radius: 50%;
 	background: dodgerblue;
 	float: right;
 	color: #FFF;
+	-moz-box-shadow: 0 0 5px #000;
+	-webkit-box-shadow: 0 0 5px #000;
 	box-shadow: 0 0 5px #000;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=5, Direction=0, Color='#000')";
+	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=5, Direction=0, Color='#000');
 	cursor: pointer;
 	text-align: center;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	filter: alpha(opacity = 50);
+	-moz-opacity: 0.5;
+	-khtml-opacity: 0.5;
 	opacity: .5;
 }
 
@@ -121,6 +134,8 @@ p {
 	width: 40px;
 	height: 30px;
 	background: #F0F8FF;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
 	border-radius: 10px;
 	margin-top: -41px;
 	border: 1px solid dodgerblue;
@@ -129,6 +144,7 @@ p {
 	cursor: pointer;
 	color: dodgerblue;
 	font-weight: bold;
+	z-index: 1;
 }
 
 .footer {
@@ -156,14 +172,11 @@ input, select {
 	cursor: pointer;
 }
 
-input
-#jobs {
+input#jobs {
 	width: 3em;
 }
 
-input
-#jobs, select, input
-[type="button"] {
+input#jobs, select, input[type="button"] {
 	height: 2.7em;
 }
 
@@ -176,6 +189,10 @@ input
 	width: 100%;
 	height: 100%;
 	z-index: 1000;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	filter: alpha(opacity = 50);
+	-moz-opacity: 0.5;
+	-khtml-opacity: 0.5;
 	opacity: .5;
 }
 
@@ -196,7 +213,11 @@ input
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
+	-moz-box-shadow: 0 0 10px #333;
+	-webkit-box-shadow: 0 0 10px #333;
 	box-shadow: 0 0 10px #333;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=10, Direction=0, Color='#333')";
+	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=10, Direction=0, Color='#333');
 }
 
 .blockUI-frame, .blockUI-caption {
@@ -268,6 +289,10 @@ input#jobs, select, input[type="button"] {
 	width: 100%;
 	height: 100%;
 	z-index: 1000;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	filter: alpha(opacity = 50);
+	-moz-opacity: 0.5;
+	-khtml-opacity: 0.5;
 	opacity: .5;
 }
 
@@ -288,7 +313,11 @@ input#jobs, select, input[type="button"] {
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
+	-moz-box-shadow: 0 0 10px #333;
+	-webkit-box-shadow: 0 0 10px #333;
 	box-shadow: 0 0 10px #333;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=10, Direction=0, Color='#333')";
+	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=10, Direction=0, Color='#333');
 }
 
 .blockUI-frame, .blockUI-caption {
@@ -387,4 +416,8 @@ span#minsample, span#maxsample {
 
 .chart-actions tr {
 	vertical-align: top;
+}
+
+input[type="number"].input-range, input[type="text"].input-range {
+	width: 4em;
 }
