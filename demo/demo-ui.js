@@ -419,6 +419,7 @@ function DemoUI($) {
     itemcount.trigger("input");
     samplecount.trigger("input");
     $("input#minsample,input#maxsample").trigger("input");
+    $("#itemtype").trigger("change");
 
     $(".close-header").off("click").on("click", function() {
         toggle_header(-1, 0, header.get(0).clientHeight + 15, -33);

@@ -23,10 +23,11 @@ Array.prototype.pigeonholesort = function(compare) {
         }
     }
 
-    var that = this, i;
+    var i, j = 0, holeindex, range, holes = [];
     var min = this.length ? this[0] : null;
     var max = min;
 
+    // find the min/max, ie. the hole's range
     for (i = 1; i < this.length; i += 1) {
         if (compare(min, this[i])) {
             min = this[i];
@@ -35,22 +36,24 @@ Array.prototype.pigeonholesort = function(compare) {
             max = this[i];
         }
     }
-    var range = max - min + 1;
+    range = max - min + 1;
 
-    var holes = [];
+    // create the emtpy holes
     while (holes.push([]) < range)
         ;
 
-    var holeindex;
+    // fill the holes with our array's items
     for (i = 0; i < this.length; i += 1) {
         holeindex = this[i] - min;
         holes[holeindex].push(this[i]);
     }
 
-    var j = 0;
-    for (var i = 0; i < range; i += 1) {
+    // copy the holes' content back to array
+    for (i = 0; i < range; i += 1) {
         while (holes[i].length) {
             this[j++] = holes[i].pop();
         }
     }
+
+    return this;
 }
