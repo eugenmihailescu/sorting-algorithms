@@ -54,6 +54,6 @@ Array.prototype.pigeonholesort = function(compare) {
             this[j++] = holes[i].pop();
         }
     }
-
+    
     return this;
 }
