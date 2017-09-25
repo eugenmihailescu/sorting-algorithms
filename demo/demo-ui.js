@@ -234,30 +234,49 @@ function DemoUI($) {
             $(".algorithm." + that.algorithms[i][0] + " td:last-child").text("");
             $(".algorithm." + that.algorithms[i][0]).removeClass("worst best");
         }
+        var max = $('.algorithm input[type="checkbox"]:checked').length - 1;
+        $("#execratingfilter").attr("min", 0).attr("max", max).attr("value", max >> 1);
     }
 
     /**
-     * Get the total execution time grouped by sorting algorithm
+     * Check whether the given input type is supported by browser
      * 
-     * @returns {array}
+     * @param {string}
+     *            type - The input type (eg. `range`)
+     * @returns {bool} - Returns true if the browser supports the input type, false otherwise.
      */
-    function groupExecTime() {
-        var array = [];
-
-        for ( var i in that.exectimes[0]) {
-            if (that.exectimes[0].hasOwnProperty(i)) {
-                array[i] = that.getExecTime(i);
-            }
-        }
-
-        return array;
-    }
-
     function hasInputType(type) {
         var el = document.createElement("input");
         el.setAttribute("type", type);
         return el.type == type;
     }
+
+    /**
+     * Get the total execution time grouped by sorting algorithm
+     * 
+     * @param {bool=}
+     *            desc - When true sort the result in descendent order. Default ascendent order.
+     * @returns {array}
+     */
+    this.groupExecTime = function(desc) {
+        desc = desc || false;
+        var array = [];
+
+        for ( var i in that.exectimes[0]) {
+            if (that.exectimes[0].hasOwnProperty(i)) {
+                array.push({
+                    name : i,
+                    time : that.getExecTime(i)
+                });
+            }
+        }
+
+        array.sort(function(a, b) {
+            return desc ? a.time < b.time : a.time > b.time;
+        });
+
+        return array;
+    };
     /**
      * Get the formatted representation of a number
      * 
@@ -305,27 +324,12 @@ function DemoUI($) {
      * @returns {object}
      */
     this.execTimeRating = function() {
-        var result = {
-            best : false,
-            worst : false
-        }, vb = 9e9, vw = 0;
+        var ratings = that.groupExecTime();
 
-        var array = groupExecTime();
-
-        for ( var i in array) {
-            if (array.hasOwnProperty(i)) {
-                if (array[i] < vb) {
-                    vb = array[i];
-                    result.best = i;
-                }
-                if (array[i] > vw) {
-                    vw = array[i];
-                    result.worst = i;
-                }
-            }
-        }
-
-        return result;
+        return {
+            best : ratings[0].name,
+            worst : ratings[ratings.length - 1].name
+        };
     };
 
     this.stripPixel = function(str) {

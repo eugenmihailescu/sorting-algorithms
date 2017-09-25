@@ -39,6 +39,7 @@ function ChartUI($) {
                 that.exclude.push(algo);
             }
         };
+
         var onChecked = function() {
             updateExclude.call(this);
 
@@ -247,10 +248,6 @@ function ChartUI($) {
 
         var colOrder = getColumnsOrder();
 
-        for (var j = 0; j < that.sender.exectimes.length; j += 1) {
-
-        }
-
         if ('line' == type) {
             data = new google.visualization.DataTable();
 
@@ -391,10 +388,64 @@ function ChartUI($) {
         ce.exportChart(format, filename);
     };
 
+    function applyFilters() {
+        var exectimes = that.sender.groupExecTime(true);
+
+        var algoInRange = function(algo) {
+            var found = false;
+
+            var rating_filter = $("#execratingfilter").val();
+            var filter_range = {
+                min : 0,
+                max : exectimes.length - 1
+            };
+            var middle = exectimes.length >> 1;
+
+            if (rating_filter < middle) {
+                filter_range.max = parseInt(rating_filter);
+            } else if (rating_filter > middle) {
+                filter_range.min = parseInt(rating_filter);
+            }
+            for (var i = filter_range.min; !found && i <= filter_range.max; i += 1) {
+                found = algo == exectimes[i].name;
+            }
+            return found;
+        };
+
+        var mousedown, canChart;
+        $("input#execratingfilter").off("input mousedown mouseup").on("mousedown", function() {
+            mousedown = true;
+            canChart = false;
+        }).on("mouseup", function() {
+            mousedown = false;
+            if (canChart) {
+                that.drawChart();
+                canChart = false;
+            }
+        }).on("input mouseup", function() {
+            var chk = $("#chart_div_algo input[type=checkbox]");
+            for (var i = 0; i < chk.length; i += 1) {
+                var el = chk.get(i);
+                var inrange = algoInRange($(el).data("algo"));
+
+                if (el.checked != inrange) {
+                    el.checked = inrange;
+                    canChart = true;
+                }
+            }
+
+            if (!mousedown && canChart) {
+                that.drawChart();
+                canChart = false;
+            }
+        });
+    }
+
     /**
      * Draw the graph
      */
     this.drawChart = function() {
+
         var chartClass = getChartClass();
 
         var optionBox = createOptionBox();
@@ -407,6 +458,8 @@ function ChartUI($) {
 
         chart_div.css("width", width);
 
+        applyFilters();
+
         var chart = new chartClass(chart_div.get(0));
 
         var data = getData(that.sender.exectimes.length > maxBarSeries ? 'line' : 'bar');
@@ -417,5 +470,4 @@ function ChartUI($) {
 
         optionBox.css("left", width).css("display", "inline");
     };
-
 }

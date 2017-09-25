@@ -421,3 +421,11 @@ span#minsample, span#maxsample {
 input[type="number"].input-range, input[type="text"].input-range {
 	width: 4em;
 }
+
+.rating-filter {
+	width: 100%;
+}
+
+#execratingfilter, .rating-filter, .rating-filter span {
+	display: inline;
+}
