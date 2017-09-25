@@ -10,8 +10,9 @@ This repository features a lightweight JavaScript implementation of the most com
 - heapsort (compare)
 - selectionsort (compare)
 - pigeonholesort (compare)
+- pigeonholesort (size,compare)
 
-where the optional paramter `compare` can be either a function, a boolean or entirely omitted. When a function is provided then it is used for item comparison. When provided as a boolean `true` then the array is sorted descendently. Otherwise (default when omitted) an ascedent (the `>` operator) order is assumed.
+where the optional paramter `compare` can be either a function, a boolean or entirely omitted. When a function is provided then it is used for item comparison. When provided as a boolean `true` then the array is sorted descendently. Otherwise (default when omitted) an ascedent (the `>` operator) order is assumed. The optional `size` parameter is the number buckets where the items are scattered. 
 
 Usage example:
 
@@ -34,15 +35,16 @@ The algorithms time complexity, its simplicity and performance:
 
 | Algorithm | Best case | Worst case |Simplicity| Speed |
 |-----------|-----------|------------|----------|-------|
-|Pigeonhole*|N+n        |N+n         |simple    | ***** |
+|Pigeonhole*|n+k        |n+k         |simple    | ***** |
 |QuickSort  |n*log(n)   |n^2         |complex   | ***** |
+|Bcketsort *|n+k        |n^2         |simple    | ***** |
 |MergeSort  |n*log(n)   |n*log(n)    |moderate  | ****  |
 |HeapSort   |n*log(n)   |n*log(n)    |complx    | ****  |
 |Insertion  |n          |n^2         |simple    | ***   |
 |Selection  |n^2        |n*^2        |simple    | **    |
 |BubbleSort |n-1        |n(n-1)/2    |simple    | *     |
 
-where `N` is the range of key values and `n` is the input size.
+where `k` is the range of key values and `n` is the input size.
 
 (*) *Pigeonhole supports only numeric values.*
 

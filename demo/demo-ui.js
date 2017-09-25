@@ -20,8 +20,8 @@ function DemoUI($) {
 
     this.algorithms = [ [ "sort", "Array.sort", "#3366CC" ], [ "insertionsort", "Insertion", "#DC3912" ],
             [ "bubblesort", "Bubble", "#FF9900" ], [ "quicksort", "Quick", "#109618" ], [ "mergesort", "Merge", "#990099" ],
-            [ "heapsort", "Heap", "#0099C6" ], [ "selectionsort", "Selection", "#DD4477" ],
-            [ "pigeonholesort", "Pigeonhole", "#6A5ACD" ] ];
+            [ "heapsort", "Heap", "#00BFFF" ], [ "selectionsort", "Selection", "#DD4477" ],
+            [ "pigeonholesort", "Pigeonhole", "#6A5ACD" ], [ "bucketsort", "Bucket", "#9ACD32" ] ];
 
     this.supportsWorker = "function" === typeof window.Worker;
 
@@ -416,6 +416,9 @@ function DemoUI($) {
     $("#itemtype").off("change").on("change", function() {
         $("#pigeonholesort").prop("checked", "numeric" == this.value);
         $("#pigeonholesort").prop("disabled", "numeric" != this.value);
+        
+        $("#bucketsort").prop("checked", "numeric" == this.value);
+        $("#bucketsort").prop("disabled", "numeric" != this.value);
     });
 
     // init the UI events
