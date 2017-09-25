@@ -2,7 +2,7 @@
 /**
  * Sort the array elements by pigeonhole sort method.
  * 
- * Time complexity: between O(N+k)
+ * Time complexity: O(N+k)
  * 
  * @author Eugen Mihailescu <eugenmihailescux@gmail.com>
  * @license {@link https://www.gnu.org/licenses/gpl-3.0.txt|GPLv3}
@@ -23,7 +23,7 @@ Array.prototype.pigeonholesort = function(compare) {
         }
     }
 
-    var i, j = 0, holeindex, range, holes = [];
+    var i, j, k = 0, holeindex, range, holes = [];
     var min = this.length ? this[0] : null;
     var max = min;
 
@@ -50,10 +50,10 @@ Array.prototype.pigeonholesort = function(compare) {
 
     // copy the holes' content back to array
     for (i = 0; i < range; i += 1) {
-        while (holes[i].length) {
-            this[j++] = holes[i].pop();
+        for (j = 0; j < holes[i].length; j += 1) {
+            this[k++] = holes[i][j];
         }
     }
-    
+
     return this;
 }
