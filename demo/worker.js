@@ -7,6 +7,7 @@ importScripts("../src/quick-sort.js");
 importScripts("../src/binary-heap.js");
 importScripts("../src/heap-sort.js");
 importScripts("../src/selection-sort.js");
+importScripts("../src/pigeonhole-sort.js");
 
 var that = this;
 

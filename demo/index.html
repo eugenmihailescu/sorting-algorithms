@@ -6,7 +6,6 @@
 <title>JS sorting algorithms demo</title>
 <link rel="stylesheet" href="demo-ui.css">
 
-
 <!--[if lt IE 9]>  
 <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>  
 <![endif]-->
@@ -21,7 +20,7 @@
 		<div class="blockUI-frame"></div>
 		<div class="blockUI-caption">Please wait...</div>
 	</div>
-
+	<span id="debug"></span>
 	<div>
 		<div class="header">
 			<div class="close-header">x</div>
@@ -37,7 +36,8 @@
 			<tr>
 				<td><label for="itemcount">Number of items</label></td>
 				<td></td>
-				<td colspan="2"><input class="input-range" id="itemcount" type="range" min="100" max="100000" value="10000" step="100"><span id="itemcount"></span></td>
+				<td colspan="2"><input class="input-range" id="itemcount" type="range" min="100" max="100000" value="100" step="100"><span
+					class="input-range-caption" id="itemcount"></span></td>
 			</tr>
 			<tr>
 				<td><label for="itemtype">Item's type</label></td>
@@ -58,7 +58,8 @@
 			<tr>
 				<td><label for="samplecount">Run samples</label></td>
 				<td></td>
-				<td colspan="2"><input class="input-range" id="samplecount" type="range" min="1" max="1000" value="1" step="1"><span id="samplecount"></span></td>
+				<td colspan="2"><input class="input-range" id="samplecount" type="range" min="1" max="1000" value="1" step="1"><span
+					class="input-range-caption" id="samplecount"></span></td>
 			</tr>
 			<tr class="algorithm sort">
 				<td><a target="_blank">Array built-in sort</a></td>
@@ -95,9 +96,14 @@
 				<td><input type="checkbox" id="selectionsort" checked="checked"></td>
 				<td colspan="2"></td>
 			</tr>
+			<tr class="algorithm pigeonholesort">
+				<td><a target="_blank">Pigeonhole sort</a></td>
+				<td><input type="checkbox" id="pigeonholesort" checked="checked"></td>
+				<td colspan="2"></td>
+			</tr>
 			<tr>
 				<td colspan="1"><input id="btnSort" type="button" value="Sort items"></td>
-				<td colspan="2"><span id="status" class="hidden"></span></td>
+				<td colspan="2"><span id="status" class="hidden" title="Cumulated time spent for sorting"></span></td>
 				<td colspan="1"><input id="btnChart" type="button" value="Show chart" class="hidden"></td>
 			</tr>
 		</table>
@@ -117,9 +123,11 @@
 		<div class="range-sample">
 			<table>
 				<tr>
-					<td><span class="range-caption">left</span><span id="minsample"></span><input class="input-range" id="minsample" type="range" min="0" value="0"></td>
+					<td><span class="range-caption">left</span><span class="input-range-caption" id="minsample"></span><input class="input-range" id="minsample"
+						type="range" min="0" value="0"></td>
 					<td><span id="middlesample"></span></td>
-					<td><span class="range-caption">right</span><span id="maxsample"></span><input class="input-range" id="maxsample" type="range"></td>
+					<td><span class="range-caption">right</span><span class="input-range-caption" id="maxsample"></span><input class="input-range" id="maxsample"
+						type="range"></td>
 				</tr>
 			</table>
 		</div>
@@ -144,9 +152,11 @@
 	<script src="../src/binary-heap.js"></script>
 	<script src="../src/heap-sort.js"></script>
 	<script src="../src/selection-sort.js"></script>
+	<script src="../src/pigeonhole-sort.js"></script>
 
 	<!-- demo UI scripts -->
 	<script src="worker-ui.js"></script>
+	<script src="chart-export.js"></script>
 	<script src="chart-ui.js"></script>
 	<script src="sort-ui.js"></script>
 	<script src="demo-ui.js"></script>
@@ -163,19 +173,21 @@
     </script>
 
 	<script>
-        (function(i, s, o, g, r, a, m) {
-            i['GoogleAnalyticsObject'] = r;
-            i[r] = i[r] || function() {
-                (i[r].q = i[r].q || []).push(arguments)
-            }, i[r].l = 1 * new Date();
-            a = s.createElement(o), m = s.getElementsByTagName(o)[0];
-            a.async = 1;
-            a.src = g;
-            m.parentNode.insertBefore(a, m)
-        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+        if (!navigator.doNotTrack) {
+            (function(i, s, o, g, r, a, m) {
+                i['GoogleAnalyticsObject'] = r;
+                i[r] = i[r] || function() {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date();
+                a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+                a.async = 1;
+                a.src = g;
+                m.parentNode.insertBefore(a, m)
+            })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
 
-        ga('create', 'UA-106434639-1', 'auto');
-        ga('send', 'pageview');
+            ga('create', 'UA-106434639-1', 'auto');
+            ga('send', 'pageview');
+        }
     </script>
 </body>
 </html>

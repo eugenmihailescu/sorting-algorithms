@@ -20,7 +20,8 @@ function DemoUI($) {
 
     this.algorithms = [ [ "sort", "Array.sort", "#3366CC" ], [ "insertionsort", "Insertion", "#DC3912" ],
             [ "bubblesort", "Bubble", "#FF9900" ], [ "quicksort", "Quick", "#109618" ], [ "mergesort", "Merge", "#990099" ],
-            [ "heapsort", "Heap", "#0099C6" ], [ "selectionsort", "Selection", "#DD4477" ] ];
+            [ "heapsort", "Heap", "#0099C6" ], [ "selectionsort", "Selection", "#DD4477" ],
+            [ "pigeonholesort", "Pigeonhole", "#6A5ACD" ] ];
 
     this.supportsWorker = "function" === typeof window.Worker;
 
@@ -33,6 +34,38 @@ function DemoUI($) {
     var jobs = $("#jobs");
     var jobsmax = this.algorithms.length;
     var canChart = true;
+
+    var header = $(".header");
+    var header_toggle = $(".header-toggle");
+
+    /**
+     * Toggle the page header
+     * 
+     * @param {int}
+     *            direction - When -1 then toggle OFF, when 1 then ON
+     * @param {int}
+     *            vOffset - The vertical offset of the header. Usually its top position.
+     * @param {int}
+     *            maxOffset - How much can the header diverge from its offset. Usually the header height.
+     * @param {int}
+     *            tOffset - The offset of the toggle. Usually its top position.
+     */
+    var toggle_header = function(direction, vOffset, maxOffset, tOffset) {
+        var tt = that.stripPixel(header_toggle.css("position-top"));
+        var tStep = -direction * 33 / (maxOffset - vOffset);
+        var i = setInterval(function() {
+            if (vOffset > maxOffset) {
+                clearInterval(i);
+            }
+
+            vOffset += 5;
+            tOffset += tStep * 5;
+            header.css("margin-top", direction * vOffset);
+
+            header_toggle.css("margin-top", tOffset);
+
+        }, 20);
+    };
 
     /**
      * Block the UI while on progress
@@ -108,7 +141,7 @@ function DemoUI($) {
                 saveChartAs.focus();
             });
 
-            var x = function(e) {
+            var onSelectKeyUp = function(e) {
                 if ("keyup" == e.originalEvent.type && 13 != e.originalEvent.keyCode) {
                     e.preventDefault();
                     return false;
@@ -118,10 +151,10 @@ function DemoUI($) {
             };
 
             // only on non-touchable devices
-            if (!'ontouchstart' in document.documentElement) {
-                saveChartAs.off("click keyup").on("click keyup", x);
+            if (!('ontouchstart' in document.documentElement)) {
+                saveChartAs.off("click keyup").on("click keyup", onSelectKeyUp);
 
-                $("#btnSave").attr("multiple", "");
+                saveChartAs.attr("multiple", "multiple");
 
                 saveChartAs.off("mouseenter").on("mouseenter", function(e) {
                     saveChartAs.prop("selectedIndex", -1);
@@ -131,7 +164,7 @@ function DemoUI($) {
                     saveChartAs.prop("selectedIndex", e.target.index);
                 });
             } else {
-                saveChartAs.off("change").on("change", x);
+                saveChartAs.off("change input").on("change input", onSelectKeyUp);
             }
         }
 
@@ -220,6 +253,11 @@ function DemoUI($) {
         return array;
     }
 
+    function hasInputType(type) {
+        var el = document.createElement("input");
+        el.setAttribute("type", type);
+        return el.type == type;
+    }
     /**
      * Get the formatted representation of a number
      * 
@@ -312,6 +350,7 @@ function DemoUI($) {
     runinthread.prop("disabled", !this.supportsWorker);
     runinthread.prop("checked", this.supportsWorker);
 
+    // sets dinamically the HREF that points to the source code
     for (var i = 0; i < this.algorithms.length; i += 1) {
         var url;
         if ("sort" == this.algorithms[i][0]) {
@@ -321,7 +360,7 @@ function DemoUI($) {
         }
         $(".algorithm." + this.algorithms[i][0] + " a").attr("href", url);
     }
-    $(".footer a").attr("href", this.jsLibURL).text(this.jsLibURL);
+    $(".footer a.source").attr("href", this.jsLibURL).text(this.jsLibURL);
 
     // handle the UI events
     itemcount.off("input").on("input", onRangeChange);
@@ -339,6 +378,21 @@ function DemoUI($) {
             $(".range-sample").removeClass("hidden");
         }
     });
+
+    var inputRange = $(".input-range");
+    if (!hasInputType("range")) {
+        $(".input-range-caption").addClass("hidden");
+        if (hasInputType("number")) {
+            inputRange.attr("type", "number");
+        } else {
+            inputRange.attr("type", "text").attr({
+                min : "",
+                max : "",
+                step : ""
+            });
+        }
+    }
+
     $("input#minsample,input#maxsample").off("input mousedown mouseup").on("input", function() {
         onRangeChange.call(this);
         drawChart();
@@ -348,49 +402,23 @@ function DemoUI($) {
         canChart = true;
         drawChart();
     });
+
     runinthread.off("input").on("input", onRunMethodChange);
     runinui.off("input").on("input", onRunMethodChange);
     $("#btnSort").off("click").on("click", onSortClick);
     $("#btnBack").off("click").on("click", onBackClick);
     $("#btnChart").off("click").on("click", onChartClick);
 
+    $("#itemtype").off("change").on("change", function() {
+        $("#pigeonholesort").prop("checked", "numeric" == this.value);
+        $("#pigeonholesort").prop("disabled", "numeric" != this.value);
+    });
+
     // init the UI events
     runinui.trigger("input");
     itemcount.trigger("input");
     samplecount.trigger("input");
     $("input#minsample,input#maxsample").trigger("input");
-
-    var header = $(".header");
-    var header_toggle = $(".header-toggle");
-
-    /**
-     * Toggle the page header
-     * 
-     * @param {int}
-     *            direction - When -1 then toggle OFF, when 1 then ON
-     * @param {int}
-     *            vOffset - The vertical offset of the header. Usually its top position.
-     * @param {int}
-     *            maxOffset - How much can the header diverge from its offset. Usually the header height.
-     * @param {int}
-     *            tOffset - The offset of the toggle. Usually its top position.
-     */
-    var toggle_header = function(direction, vOffset, maxOffset, tOffset) {
-        var tt = that.stripPixel(header_toggle.css("position-top"));
-        var tStep = -direction * 33 / (maxOffset - vOffset);
-        var i = setInterval(function() {
-            if (vOffset > maxOffset) {
-                clearInterval(i);
-            }
-
-            vOffset += 5;
-            tOffset += tStep * 5;
-            header.css("margin-top", direction * vOffset);
-
-            header_toggle.css("margin-top", tOffset);
-
-        }, 20);
-    };
 
     $(".close-header").off("click").on("click", function() {
         toggle_header(-1, 0, header.get(0).clientHeight + 15, -33);
