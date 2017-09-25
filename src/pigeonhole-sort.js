@@ -23,7 +23,7 @@ Array.prototype.pigeonholesort = function(compare) {
         }
     }
 
-    var that = this, i;
+    var i, j = 0, holeindex, range, holes = [];
     var min = this.length ? this[0] : null;
     var max = min;
 
@@ -35,20 +35,17 @@ Array.prototype.pigeonholesort = function(compare) {
             max = this[i];
         }
     }
-    var range = max - min + 1;
+    range = max - min + 1;
 
-    var holes = [];
     while (holes.push([]) < range)
         ;
 
-    var holeindex;
     for (i = 0; i < this.length; i += 1) {
         holeindex = this[i] - min;
         holes[holeindex].push(this[i]);
     }
 
-    var j = 0;
-    for (var i = 0; i < range; i += 1) {
+    for (i = 0; i < range; i += 1) {
         while (holes[i].length) {
             this[j++] = holes[i].pop();
         }
