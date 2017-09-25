@@ -8,6 +8,7 @@ importScripts("../src/binary-heap.js");
 importScripts("../src/heap-sort.js");
 importScripts("../src/selection-sort.js");
 importScripts("../src/pigeonhole-sort.js");
+importScripts("../src/bucket-sort.js");
 
 var that = this;
 
