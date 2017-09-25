@@ -10,7 +10,7 @@ This repository features a lightweight JavaScript implementation of the most com
 - heapsort (compare)
 - selectionsort (compare)
 - pigeonholesort (compare)
-- pigeonholesort (size,compare)
+- bucketsort (size,compare)
 
 where the optional paramter `compare` can be either a function, a boolean or entirely omitted. When a function is provided then it is used for item comparison. When provided as a boolean `true` then the array is sorted descendently. Otherwise (default when omitted) an ascedent (the `>` operator) order is assumed. The optional `size` parameter is the number buckets where the items are scattered. 
 
@@ -37,7 +37,7 @@ The algorithms time complexity, its simplicity and performance:
 |-----------|-----------|------------|----------|-------|
 |Pigeonhole*|n+k        |n+k         |simple    | ***** |
 |QuickSort  |n*log(n)   |n^2         |complex   | ***** |
-|Bcketsort *|n+k        |n^2         |simple    | ***** |
+|Bucketsort*|n+k        |n^2         |simple    | ***** |
 |MergeSort  |n*log(n)   |n*log(n)    |moderate  | ****  |
 |HeapSort   |n*log(n)   |n*log(n)    |complx    | ****  |
 |Insertion  |n          |n^2         |simple    | ***   |

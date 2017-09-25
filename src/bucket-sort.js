@@ -37,7 +37,7 @@ Array.prototype.bucketsort = function(size, compare) {
     var min = this.length ? this[0] : null;
     var max = min;
 
-    // find the min/max, ie. the hole's range
+    // find the min/max, ie. the buckets' range
     for (i = 1; i < this.length; i += 1) {
         if (compare(min, this[i])) {
             min = this[i];
