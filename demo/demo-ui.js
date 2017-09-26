@@ -236,6 +236,7 @@ function DemoUI($) {
         }
         var max = $('.algorithm input[type="checkbox"]:checked').length - 1;
         $("#execratingfilter").attr("min", 0).attr("max", max).attr("value", max >> 1);
+        $(".numeric-only").addClass("numeric-only-hidden");
     }
 
     /**
@@ -416,9 +417,26 @@ function DemoUI($) {
     $("#itemtype").off("change").on("change", function() {
         $("#pigeonholesort").prop("checked", "numeric" == this.value);
         $("#pigeonholesort").prop("disabled", "numeric" != this.value);
-        
+
         $("#bucketsort").prop("checked", "numeric" == this.value);
         $("#bucketsort").prop("disabled", "numeric" != this.value);
+
+        if ("numeric" == this.value) {
+            $(".numeric-only").text("").addClass("numeric-only-hidden");
+        } else {
+            $(".numeric-only").removeClass("numeric-only-hidden");
+        }
+    });
+    var checkedAlgo = $(".algorithm input[type=checkbox]");
+    checkedAlgo.on("change", function() {
+        if ($(this).is(":checked")) {
+            $(this).parent().siblings(":last").removeClass("na");
+        } else if ($(this).is(":disabled")) {
+            $(this).parent().siblings(":last").removeClass("na");
+        } else {
+            $(this).parent().siblings(":last").addClass("na");
+        }
+        $("#btnSort").prop("disabled", !$(".algorithm input[type=checkbox]:checked").length);
     });
 
     // init the UI events
@@ -427,6 +445,7 @@ function DemoUI($) {
     samplecount.trigger("input");
     $("input#minsample,input#maxsample").trigger("input");
     $("#itemtype").trigger("change");
+    checkedAlgo.trigger("change");
 
     $(".close-header").off("click").on("click", function() {
         toggle_header(-1, 0, header.get(0).clientHeight + 15, -33);

@@ -109,7 +109,6 @@ p {
 	box-shadow: 0 0 5px #000;
 	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=5, Direction=0, Color='#000')";
 	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=5, Direction=0, Color='#000');
-	cursor: pointer;
 	text-align: center;
 	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
 	filter: alpha(opacity = 50);
@@ -141,7 +140,6 @@ p {
 	border: 1px solid dodgerblue;
 	padding-top: 10px;
 	text-align: center;
-	cursor: pointer;
 	color: dodgerblue;
 	font-weight: bold;
 	z-index: 1;
@@ -169,7 +167,6 @@ p {
 input, select {
 	width: auto;
 	max-width: 100%;
-	cursor: pointer;
 }
 
 input#jobs {
@@ -269,7 +266,6 @@ input#jobs, select, input[type="button"] {
 input, select {
 	width: auto;
 	max-width: 100%;
-	cursor: pointer;
 }
 
 input#jobs {
@@ -428,4 +424,28 @@ input[type="number"].input-range, input[type="text"].input-range {
 
 #execratingfilter, .rating-filter, .rating-filter span {
 	display: inline;
+}
+
+.na:after {
+	content: "n/a" !important;
+}
+
+.numeric-only-hidden:after {
+	content: "";
+}
+
+.numeric-only:after {
+	content: "numeric only";
+}
+
+.na:after, .numeric-only:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+	filter: alpha(opacity = 20);
+	-moz-opacity: 0.2;
+	-khtml-opacity: 0.2;
+	opacity: 0.2;
+}
+
+label, input, select, .close-header, .header-toggle {
+	cursor: pointer;
 }
