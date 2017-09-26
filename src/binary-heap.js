@@ -285,6 +285,5 @@ function BinaryHeap(list, noinit) {
  * @returns {bool} - Returns true if a > b, false otherwise
  */
 BinaryHeap.prototype.compare = function(a, b) {
-    print('XXXX');
     return a > b;
 }
